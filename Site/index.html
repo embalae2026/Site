@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>embalaê — embale diferente</title>
+  <meta name="description" content="A Embalaê faz embalagens em qualquer formato — redondo, cônico, em espiral, humanoide, irregular. Se você imagina, a gente embala." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- CURSOR CUSTOMIZADO -->
+  <div class="cursor" id="cursor" aria-hidden="true"></div>
+  <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+
+  <!-- LOADER -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <svg class="loader-blob" viewBox="0 0 200 200">
+      <path id="loaderBlob" d="M50,-50 C70,-30 70,30 50,50 C30,70 -30,70 -50,50 C-70,30 -70,-30 -50,-50 C-30,-70 30,-70 50,-50 Z" transform="translate(100 100)" />
+    </svg>
+    <span class="loader-text">embale diferente</span>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="nav is-stowed" id="nav">
+    <a href="#topo" class="nav-logo" aria-label="embalaê — início">
+      <img src="assets/logo-trans.png" alt="embalaê" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="#manifesto" data-cursor="hover">manifesto</a></li>
+      <li><a href="#formatos" data-cursor="hover">formatos</a></li>
+      <li><a href="#processo" data-cursor="hover">processo</a></li>
+      <li><a href="#contato" data-cursor="hover">contato</a></li>
+    </ul>
+    <a href="#contato" class="nav-cta" data-cursor="hover">
+      <span>orçamento</span>
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </nav>
+
+  <!-- SVG SPRITE: ÍCONE "aé" SIMPLIFICADO -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="mark-ae" viewBox="0 0 60 30">
+        <text x="0" y="24" font-family="Bricolage Grotesque" font-weight="700" font-size="28" fill="currentColor" font-style="italic">aé</text>
+      </symbol>
+      <!-- Gradiente do "aé" da caixa: lima → amarelo -->
+      <linearGradient id="ae-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f5c932" />
+        <stop offset="55%" stop-color="#c9db3f" />
+        <stop offset="100%" stop-color="#4cb87a" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- BOXGATE: caixa 3D que abre como portal pro site -->
+  <section class="boxgate" id="boxgate" aria-label="Abertura da caixa Embalaê">
+    <div class="boxgate-sticky">
+      <div class="boxgate-stage">
+       <div class="boxgate-frame">
+        <!-- Sombra projetada no chão — elemento separado da .box pra evitar filter
+             que quebraria o preserve-3d das filhas da caixa. -->
+        <div class="box-ground-shadow" aria-hidden="true"></div>
+        <div class="box" id="box">
+          <!-- Faces externas usando artwork pronto como background-image -->
+          <div class="box-face box-face--front"></div>
+
+          <div class="box-face box-face--back"></div>
+
+          <div class="box-face box-face--left"></div>
+          <div class="box-face box-face--right"></div>
+
+          <div class="box-face box-face--bottom"></div>
+
+          <!-- Paredes INTERNAS (visíveis quando a caixa abre) -->
+          <div class="box-wall-inner box-wall-inner--front"></div>
+          <div class="box-wall-inner box-wall-inner--back"></div>
+          <div class="box-wall-inner box-wall-inner--left"></div>
+          <div class="box-wall-inner box-wall-inner--right"></div>
+
+          <!-- TAMPA (lid): face externa = artwork face-tampa.jpg (aé gigante).
+               Face interna = lima limpa com "embale diferente" (visível quando tampa abre). -->
+          <div class="lid">
+            <div class="lid-plane">
+              <div class="lid-face lid-face--outer"></div>
+              <div class="lid-face lid-face--inner">
+                <span class="lid-inner-slogan">embale diferente</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interior (chão da caixa) — lima limpo. O conteúdo do site é o hero
+               real abaixo, sem duplicação aqui dentro. -->
+          <div class="box-interior"></div>
+        </div>
+       </div>
+
+        <!-- Hint de scroll: "role pra abrir" — some quando o user começa a rolar -->
+        <div class="boxgate-hint" id="boxgateHint">
+          <span>role pra abrir</span>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 5v14M5 12l7 7 7-7"/>
+          </svg>
+        </div>
+
+        <!-- Vinheta de iluminação -->
+        <div class="boxgate-vignette" aria-hidden="true"></div>
+        <!-- Fade verde pra disfarçar a transição da caixa pro hero real -->
+        <div class="boxgate-fade" id="boxgateFade" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+
+  <main id="topo">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-bg">
+        <video autoplay muted loop playsinline preload="auto" class="hero-video" id="heroVideo" poster="">
+          <source src="assets/embalae-loop.mp4" type="video/mp4" />
+        </video>
+        <div class="hero-bg-overlay"></div>
+      </div>
+
+      <div class="hero-content">
+        <p class="hero-eyebrow">
+          <span class="dot"></span>
+          embalagens fora da caixa <em>(literalmente)</em>
+        </p>
+
+        <h1 class="hero-title">
+          <span class="line">a gente embala</span>
+          <span class="line line-rotate">
+            <span class="rotator" id="rotator">
+              <span>redondo.</span>
+              <span>em&nbsp;cone.</span>
+              <span>em&nbsp;espiral.</span>
+              <span>humanoide.</span>
+              <span>assimétrico.</span>
+              <span>impossível.</span>
+              <span>do&nbsp;seu&nbsp;jeito.</span>
+            </span>
+          </span>
+        </h1>
+
+        <p class="hero-sub">
+          Se você consegue desenhar, a gente consegue embalar.
+          Sem caixa quadrada, sem limite, sem desculpa.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#formatos" class="btn btn-primary" data-cursor="hover">
+            <span>ver formatos malucos</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+          </a>
+          <a href="#contato" class="btn btn-ghost" data-cursor="hover">
+            <span>tô com uma ideia</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-scroll">
+        <span>role pra ver</span>
+        <div class="scroll-line"></div>
+      </div>
+
+      <!-- Blobs flutuantes -->
+      <div class="blob blob-1" aria-hidden="true"></div>
+      <div class="blob blob-2" aria-hidden="true"></div>
+      <div class="blob blob-3" aria-hidden="true"></div>
+    </section>
+
+    <!-- MARQUEE 1 -->
+    <section class="marquee marquee-cream" aria-hidden="true">
+      <div class="marquee-track">
+        <span>redondo</span><span class="sep">●</span>
+        <span>cônico</span><span class="sep">●</span>
+        <span>oval</span><span class="sep">●</span>
+        <span>em espiral</span><span class="sep">●</span>
+        <span>humanoide</span><span class="sep">●</span>
+        <span>irregular</span><span class="sep">●</span>
+        <span>orgânico</span><span class="sep">●</span>
+        <span>assimétrico</span><span class="sep">●</span>
+        <span>cilíndrico</span><span class="sep">●</span>
+        <span>curvo</span><span class="sep">●</span>
+        <span>do seu jeito</span><span class="sep">●</span>
+        <!-- duplicado pra loop -->
+        <span>redondo</span><span class="sep">●</span>
+        <span>cônico</span><span class="sep">●</span>
+        <span>oval</span><span class="sep">●</span>
+        <span>em espiral</span><span class="sep">●</span>
+        <span>humanoide</span><span class="sep">●</span>
+        <span>irregular</span><span class="sep">●</span>
+        <span>orgânico</span><span class="sep">●</span>
+        <span>assimétrico</span><span class="sep">●</span>
+        <span>cilíndrico</span><span class="sep">●</span>
+        <span>curvo</span><span class="sep">●</span>
+        <span>do seu jeito</span><span class="sep">●</span>
+      </div>
+    </section>
+
+    <!-- MANIFESTO -->
+    <section class="manifesto" id="manifesto">
+      <div class="manifesto-grid">
+        <div class="manifesto-tag">
+          <span class="dot"></span> manifesto
+        </div>
+
+        <h2 class="manifesto-text">
+          A embalagem deixou de ser
+          <span class="strike">uma caixa.</span>
+          <br />
+          Virou <em>extensão</em> da sua marca,
+          <br />
+          do seu produto, da sua
+          <span class="highlight">ideia maluca</span>
+          que ninguém topou fazer.
+          <br />
+          <strong>A gente topa.</strong>
+        </h2>
+
+        <div class="manifesto-side">
+          <div class="quote-mark">"</div>
+          <p>
+            Embalar diferente é não aceitar a forma só porque ela existe.
+            É inventar a forma porque ela <em>precisa</em> existir.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMATOS -->
+    <section class="formatos" id="formatos">
+      <header class="section-head">
+        <p class="eyebrow"><span class="dot"></span> formatos</p>
+        <h2 class="section-title">
+          se cabe na sua cabeça,<br />
+          <span class="ital">cabe na nossa produção.</span>
+        </h2>
+        <p class="section-sub">
+          Aqui vai um cardápio de loucuras que a gente já fez —
+          e a real é que isso é só uma fração.
+        </p>
+      </header>
+
+      <div class="formatos-grid">
+
+        <article class="formato-card" data-cursor="big" style="--accent: var(--lime);">
+          <div class="formato-shape">
+            <svg viewBox="0 0 200 200">
+              <circle cx="100" cy="100" r="80" />
+            </svg>
+          </div>
+          <div class="formato-info">
+            <h3>100% redondo</h3>
+            <p>Sem cantos. Sem quinas. Esfera quase perfeita.</p>
+          </div>
+          <span class="formato-num">01</span>
+        </article>
+
+        <article class="formato-card" data-cursor="big" style="--accent: var(--yellow);">
+          <div class="formato-shape">
+            <svg viewBox="0 0 200 200">
+              <polygon points="100,20 170,180 30,180" />
+            </svg>
+          </div>
+          <div class="formato-info">
+            <h3>cônico</h3>
+            <p>Formato exato de cone. Pra produto, pra brinde, pra display.</p>
+          </div>
+          <span class="formato-num">02</span>
+        </article>
+
+        <article class="formato-card" data-cursor="big" style="--accent: var(--green-mid);">
+          <div class="formato-shape">
+            <svg viewBox="0 0 200 200">
+              <path d="M100,30 C130,30 150,55 150,90 C150,115 135,130 120,135 C115,150 115,160 130,170 L70,170 C85,160 85,150 80,135 C65,130 50,115 50,90 C50,55 70,30 100,30 Z" />
+            </svg>
+          </div>
+          <div class="formato-info">
+            <h3>humanoide</h3>
+            <p>Cabeça, perna, mão, corpo inteiro. Você desenha, a gente faz.</p>
+          </div>
+          <span class="formato-num">03</span>
+        </article>
+
+        <article class="formato-card" data-cursor="big" style="--accent: var(--lime);">
+          <div class="formato-shape">
+            <svg viewBox="0 0 200 200">
+              <path d="M100,170 C100,170 60,150 50,120 C40,90 60,60 90,55 C115,51 130,70 125,90 C120,108 100,115 90,105 C82,97 87,85 95,85" fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div class="formato-info">
+            <h3>em espiral</h3>
+            <p>Curva contínua, sem emendas aparentes. Hipnótica.</p>
+          </div>
+          <span class="formato-num">04</span>
+        </article>
+
+        <article class="formato-card" data-cursor="big" style="--accent: var(--yellow);">
+          <div class="formato-shape">
+            <svg viewBox="0 0 200 200">
+              <path d="M40,80 Q60,40 100,55 Q145,30 160,75 Q190,100 155,130 Q145,170 100,160 Q55,180 45,135 Q15,110 40,80 Z" />
+            </svg>
+          </div>
+          <div class="formato-info">
+            <h3>orgânico</h3>
+            <p>Fluido, irregular, vivo. Como se tivesse crescido sozinho.</p>
+          </div>
+          <span class="formato-num">05</span>
+        </article>
+
+        <article class="formato-card" data-cursor="big" style="--accent: var(--cream);">
+          <div class="formato-shape">
+            <svg viewBox="0 0 200 200">
+              <ellipse cx="100" cy="100" rx="55" ry="85" />
+            </svg>
+          </div>
+          <div class="formato-info">
+            <h3>oval &amp; cilíndrico</h3>
+            <p>Cosméticos, bebidas, perfumes. Curvas que abraçam o produto.</p>
+          </div>
+          <span class="formato-num">06</span>
+        </article>
+
+        <article class="formato-card formato-card--wide" data-cursor="big" style="--accent: var(--green-mid);">
+          <div class="formato-shape">
+            <svg viewBox="0 0 400 200">
+              <path d="M20,100 Q60,30 110,90 Q160,150 220,80 Q280,20 340,100 Q380,160 380,160" fill="none" stroke="currentColor" stroke-width="20" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div class="formato-info">
+            <h3>+ tudo o que você imaginar</h3>
+            <p>
+              Esses são só exemplos. Mande sua referência, foto, sketch no
+              guardanapo. A gente prototipa.
+            </p>
+          </div>
+          <span class="formato-num">07</span>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- DESTAQUE: NÚMERO GIGANTE -->
+    <section class="big-number">
+      <div class="big-stack">
+        <span class="big-line">qualquer</span>
+        <span class="big-line big-outline">forma</span>
+        <span class="big-line big-italic">é forma.</span>
+      </div>
+      <div class="big-meta">
+        <p>
+          A gente parte da sua ideia e chega no protótipo —
+          mesmo que ela não caiba em nenhum molde tradicional.
+        </p>
+      </div>
+    </section>
+
+    <!-- PROCESSO -->
+    <section class="processo" id="processo">
+      <header class="section-head">
+        <p class="eyebrow"><span class="dot"></span> processo</p>
+        <h2 class="section-title">
+          do guardanapo<br />
+          <span class="ital">até a estante.</span>
+        </h2>
+      </header>
+
+      <div class="processo-list">
+        <div class="processo-step" data-cursor="hover">
+          <span class="step-num">01</span>
+          <h3>conta a ideia</h3>
+          <p>Foto, desenho, áudio do WhatsApp, referência do Pinterest. Vale tudo.</p>
+        </div>
+        <div class="processo-step" data-cursor="hover">
+          <span class="step-num">02</span>
+          <h3>desenhamos juntos</h3>
+          <p>Você manda a referência, a gente devolve estudo 3D e ajusta até bater.</p>
+        </div>
+        <div class="processo-step" data-cursor="hover">
+          <span class="step-num">03</span>
+          <h3>prototipamos</h3>
+          <p>Amostra física na sua mão antes da produção. Sem surpresa.</p>
+        </div>
+        <div class="processo-step" data-cursor="hover">
+          <span class="step-num">04</span>
+          <h3>produzimos sob medida</h3>
+          <p>Tiragem do tamanho que você precisa. Pequena, média, gigante.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIRETRIZES (PILARES) -->
+    <section class="pilares">
+      <header class="section-head">
+        <p class="eyebrow"><span class="dot"></span> nosso jeito</p>
+        <h2 class="section-title">
+          seis palavras que<br />
+          <span class="ital">explicam a gente.</span>
+        </h2>
+      </header>
+      <div class="pilares-grid">
+        <div class="pilar"><span>01</span><h4>movimento</h4></div>
+        <div class="pilar"><span>02</span><h4>transformação</h4></div>
+        <div class="pilar"><span>03</span><h4>fluidez</h4></div>
+        <div class="pilar"><span>04</span><h4>versatilidade</h4></div>
+        <div class="pilar"><span>05</span><h4>continuidade</h4></div>
+        <div class="pilar"><span>06</span><h4>brasilidade</h4></div>
+      </div>
+    </section>
+
+    <!-- MARQUEE 2 -->
+    <section class="marquee marquee-dark" aria-hidden="true">
+      <div class="marquee-track marquee-reverse">
+        <span>embale diferente</span><span class="sep">✦</span>
+        <span>embale diferente</span><span class="sep">✦</span>
+        <span>embale diferente</span><span class="sep">✦</span>
+        <span>embale diferente</span><span class="sep">✦</span>
+        <span>embale diferente</span><span class="sep">✦</span>
+        <span>embale diferente</span><span class="sep">✦</span>
+        <span>embale diferente</span><span class="sep">✦</span>
+        <span>embale diferente</span><span class="sep">✦</span>
+      </div>
+    </section>
+
+    <!-- CTA / CONTATO -->
+    <section class="cta" id="contato">
+      <div class="cta-bg" aria-hidden="true">
+        <svg viewBox="0 0 600 600" preserveAspectRatio="xMidYMid slice">
+          <path id="ctaBlob" d="M300,140 C400,140 480,220 480,320 C480,420 400,500 300,500 C200,500 120,420 120,320 C120,220 200,140 300,140 Z" />
+        </svg>
+      </div>
+
+      <div class="cta-inner">
+        <p class="eyebrow eyebrow-dark"><span class="dot"></span> bora começar</p>
+        <h2 class="cta-title">
+          tem uma ideia<br />
+          <span class="ital">esquisita</span> aí?
+        </h2>
+        <p class="cta-sub">
+          Manda. Quanto mais fora da caixa, mais a gente curte.
+        </p>
+
+        <div class="cta-channels">
+          <a href="https://wa.me/" class="channel" data-cursor="hover">
+            <span class="channel-label">whatsapp</span>
+            <span class="channel-value">conversar agora →</span>
+          </a>
+          <a href="mailto:contato@embalae.com.br" class="channel" data-cursor="hover">
+            <span class="channel-label">email</span>
+            <span class="channel-value">contato@embalae.com.br</span>
+          </a>
+          <a href="https://instagram.com/" class="channel" data-cursor="hover">
+            <span class="channel-label">instagram</span>
+            <span class="channel-value">@embalae →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-big">embalaê</div>
+    <div class="footer-bottom">
+      <div class="footer-tag">embale diferente.</div>
+      <div class="footer-meta">
+        <span>© <span id="year">2026</span> embalaê</span>
+        <span>·</span>
+        <span>feito com vontade</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

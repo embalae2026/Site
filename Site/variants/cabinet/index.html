@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cabinet — embalaê variante B</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green-dark: #0e3d29;
+      --green-darker: #082619;
+      --green-mid: #1a8a4f;
+      --lime: #c9db3f;
+      --yellow: #f5c932;
+      --cream: #f5efd8;
+      --ease: cubic-bezier(0.65, 0, 0.35, 1);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-door: cubic-bezier(0.34, 1.16, 0.5, 1); /* leve overshoot estilo "porta que abriu com gás-spring" */
+    }
+    body {
+      font-family: 'Manrope', system-ui, sans-serif;
+      background:
+        radial-gradient(60% 60% at 50% 45%, rgba(76, 184, 122, 0.18), transparent 70%),
+        radial-gradient(80% 60% at 50% 110%, rgba(8, 38, 25, 0.95), rgba(14, 61, 41, 0.6) 60%, transparent 100%),
+        linear-gradient(180deg, var(--green-darker) 0%, var(--green-dark) 60%, #143a27 100%);
+      color: var(--cream);
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 18px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      z-index: 10;
+      opacity: 0.7;
+    }
+    .topbar a { color: var(--lime); text-decoration: none; }
+    .topbar a:hover { text-decoration: underline; }
+
+    /* STAGE */
+    .stage {
+      perspective: 1800px;
+      perspective-origin: 50% 50%;
+      width: 100%;
+      max-width: 720px;
+      aspect-ratio: 1 / 0.85;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .box {
+      --box-w: 360px;
+      --box-h: 360px;
+      --box-d: 280px;
+      --door: 0; /* 0 = fechada, 1 = aberta */
+
+      position: relative;
+      width: var(--box-w);
+      height: var(--box-h);
+      transform-style: preserve-3d;
+      /* gira ligeiramente pra mostrar profundidade. Quando abre, gira mais
+         pra dar visibilidade ao interior. */
+      transform:
+        rotateX(-4deg)
+        rotateY(calc(-8deg + var(--door) * -14deg));
+      transition: transform 1.6s var(--ease-out);
+    }
+
+    /* Faces externas: corpo sem a frontal (a frontal é a porta móvel) */
+    .face {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      backface-visibility: hidden;
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.4);
+    }
+    .face-back {
+      width: var(--box-w);
+      height: var(--box-h);
+      background: linear-gradient(180deg, #051a10 0%, var(--green-darker) 100%);
+      transform: translate(-50%, -50%) translateZ(calc(var(--box-d) / -2)) rotateY(180deg);
+    }
+    .face-left, .face-right {
+      width: var(--box-d);
+      height: var(--box-h);
+      background: linear-gradient(180deg, var(--green-darker), var(--green-dark));
+    }
+    .face-left {
+      transform: translate(-50%, -50%) translateX(calc(var(--box-w) / -2)) rotateY(-90deg);
+    }
+    .face-right {
+      transform: translate(-50%, -50%) translateX(calc(var(--box-w) / 2)) rotateY(90deg);
+    }
+    .face-top {
+      width: var(--box-w);
+      height: var(--box-d);
+      background: linear-gradient(180deg, var(--green-darker) 0%, #051a10 100%);
+      transform: translate(-50%, -50%) translateY(calc(var(--box-h) / -2)) rotateX(90deg);
+    }
+    .face-bottom {
+      width: var(--box-w);
+      height: var(--box-d);
+      background: #051a10;
+      transform: translate(-50%, -50%) translateY(calc(var(--box-h) / 2)) rotateX(-90deg);
+    }
+
+    /* Paredes INTERNAS — vistas quando a porta abre, em amarelo lima */
+    .wall-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      backface-visibility: hidden;
+      background:
+        radial-gradient(120% 100% at 50% 100%, rgba(245, 201, 50, 0.4), transparent 60%),
+        linear-gradient(180deg, #d5e147 0%, var(--lime) 60%, #b9cc36 100%);
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, calc(0.55 * (1 - var(--door)) + 0.08));
+    }
+    .wall-inner-back {
+      width: var(--box-w);
+      height: var(--box-h);
+      transform: translate(-50%, -50%) translateZ(calc(var(--box-d) / -2 + 2px));
+    }
+    .wall-inner-left {
+      width: var(--box-d);
+      height: var(--box-h);
+      transform: translate(-50%, -50%) translateX(calc(var(--box-w) / -2 + 2px)) rotateY(90deg);
+    }
+    .wall-inner-right {
+      width: var(--box-d);
+      height: var(--box-h);
+      transform: translate(-50%, -50%) translateX(calc(var(--box-w) / 2 - 2px)) rotateY(-90deg);
+    }
+    .wall-inner-top {
+      width: var(--box-w);
+      height: var(--box-d);
+      transform: translate(-50%, -50%) translateY(calc(var(--box-h) / -2 + 2px)) rotateX(-90deg);
+    }
+    .wall-inner-bottom {
+      width: var(--box-w);
+      height: var(--box-d);
+      background:
+        radial-gradient(70% 60% at 50% 50%, rgba(255, 220, 100, 0.4), transparent 70%),
+        linear-gradient(180deg, var(--lime) 0%, #b9cc36 100%);
+      transform: translate(-50%, -50%) translateY(calc(var(--box-h) / 2 - 2px)) rotateX(90deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Conteúdo do "fundo" da caixa: mensagem que aparece quando a porta abre */
+    .content {
+      font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+      font-weight: 700;
+      font-style: italic;
+      font-size: 38px;
+      color: var(--green-dark);
+      letter-spacing: -0.04em;
+      opacity: var(--door);
+      transform: scale(calc(0.7 + 0.3 * var(--door))) rotate(-90deg);
+      transition: opacity 1.4s var(--ease-out), transform 1.4s var(--ease-out);
+      white-space: nowrap;
+    }
+
+    /* PORTA: face frontal com dobradiça na aresta ESQUERDA-frontal.
+       --door = 0 → fechada (perpendicular à profundidade), 1 → aberta ~105° */
+    .door {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      transform-style: preserve-3d;
+      /* Pivô: aresta esquerda-frontal */
+      transform:
+        translate(-50%, -50%)
+        translateX(calc(var(--box-w) / -2))
+        translateZ(calc(var(--box-d) / 2));
+    }
+    .door-plane {
+      position: absolute;
+      width: var(--box-w);
+      height: var(--box-h);
+      left: 0;
+      top: calc(var(--box-h) / -2);
+      transform-style: preserve-3d;
+      transform-origin: 0% 50%;
+      /* 0deg = fechada (face frontal vertical); -105deg = aberta pra fora-esquerda */
+      transform: rotateY(calc(var(--door) * -105deg));
+      transition: transform 1.6s var(--ease-door);
+    }
+    .door-plane::before, .door-plane::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+    }
+    /* Face EXTERNA da porta: verde papelão com "aé" gigante */
+    .door-plane::before {
+      background:
+        radial-gradient(120% 80% at 30% 30%, rgba(76, 184, 122, 0.18), transparent 60%),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 4px),
+        linear-gradient(160deg, var(--green-darker) 0%, var(--green-dark) 60%, #134a32 100%);
+      box-shadow:
+        inset 0 0 60px rgba(0, 0, 0, 0.35),
+        inset 4px 0 0 rgba(255, 255, 255, 0.05); /* vinco da dobradiça à esquerda */
+      transform: translateZ(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .door-plane::after {
+      /* Face INTERNA (vista quando a porta está aberta): amarelo lima */
+      background:
+        radial-gradient(120% 100% at 50% 50%, rgba(245, 201, 50, 0.35), transparent 65%),
+        linear-gradient(180deg, #d5e147 0%, var(--lime) 50%, #b9cc36 100%);
+      box-shadow:
+        inset 0 0 40px rgba(245, 201, 50, 0.3),
+        inset -4px 0 0 rgba(0, 0, 0, 0.18); /* vinco da dobradiça à esquerda, visto por dentro */
+      transform: rotateY(180deg) translateZ(2px);
+    }
+
+    /* Conteúdo gráfico da porta — overlay separado pra ficar legível em ambas as faces */
+    .door-art {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transform: translateZ(3px);
+    }
+    .ae {
+      font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+      font-weight: 700;
+      font-style: italic;
+      font-size: 200px;
+      letter-spacing: -0.06em;
+      background: linear-gradient(120deg, var(--yellow), var(--lime), var(--green-mid));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.3));
+      line-height: 0.9;
+    }
+
+    /* SOMBRA projetada */
+    .shadow {
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      width: 80%;
+      height: 35px;
+      transform: translateX(-50%) translateZ(-1px);
+      background: radial-gradient(50% 100% at 50% 50%, rgba(0, 0, 0, 0.45), transparent 70%);
+      filter: blur(8px);
+    }
+
+    /* CONTROLS */
+    .controls {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      z-index: 10;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 24px;
+      border-radius: 100px;
+      font-family: 'Manrope', system-ui, sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      border: 0;
+      transition: transform 0.3s var(--ease), background 0.3s var(--ease);
+    }
+    .btn-primary {
+      background: var(--lime);
+      color: var(--green-dark);
+    }
+    .btn-primary:hover {
+      background: var(--yellow);
+      transform: translateY(-2px);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--cream);
+      border: 1.5px solid rgba(245, 239, 216, 0.3);
+    }
+    .btn-ghost:hover {
+      background: rgba(245, 239, 216, 0.08);
+    }
+
+    .hint {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, calc(-50% + 240px));
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      pointer-events: none;
+      transition: opacity 0.6s var(--ease);
+    }
+    .hint.is-faded { opacity: 0; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a href="../">← variantes</a>
+    <span>opção b — caixa armário</span>
+    <a href="../magnet/">imã →</a>
+  </div>
+
+  <div class="stage">
+    <div class="box" id="box">
+
+      <div class="shadow"></div>
+
+      <!-- Faces externas (sem frontal) -->
+      <div class="face face-back"></div>
+      <div class="face face-left"></div>
+      <div class="face face-right"></div>
+      <div class="face face-top"></div>
+      <div class="face face-bottom"></div>
+
+      <!-- Paredes internas (lima) -->
+      <div class="wall-inner wall-inner-back"></div>
+      <div class="wall-inner wall-inner-left"></div>
+      <div class="wall-inner wall-inner-right"></div>
+      <div class="wall-inner wall-inner-top"></div>
+      <div class="wall-inner wall-inner-bottom">
+        <!-- mensagem no fundo da caixa, aparece quando a porta abre -->
+        <span class="content">a gente embala.</span>
+      </div>
+
+      <!-- PORTA: face frontal, dobradiça à esquerda -->
+      <div class="door">
+        <div class="door-plane">
+          <div class="door-art"><span class="ae">aé</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="hint" id="hint">clica pra abrir</div>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="toggle">abrir caixa</button>
+    <button class="btn btn-ghost" id="reset">resetar</button>
+  </div>
+
+  <script>
+    const box = document.getElementById('box');
+    const toggleBtn = document.getElementById('toggle');
+    const resetBtn = document.getElementById('reset');
+    const hint = document.getElementById('hint');
+    let isOpen = false;
+
+    function setOpen(open) {
+      isOpen = open;
+      box.style.setProperty('--door', open ? '1' : '0');
+      toggleBtn.textContent = open ? 'fechar caixa' : 'abrir caixa';
+      hint.classList.toggle('is-faded', open);
+    }
+
+    toggleBtn.addEventListener('click', () => setOpen(!isOpen));
+    resetBtn.addEventListener('click', () => setOpen(false));
+    box.addEventListener('click', () => setOpen(!isOpen));
+
+    setOpen(false);
+  </script>
+
+</body>
+</html>
