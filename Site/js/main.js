@@ -24,13 +24,16 @@
   const boxgate = document.getElementById('boxgate');
   const box = document.getElementById('box');
   const navEl = document.getElementById('nav');
+  const waFabEl = document.getElementById('waFab');
   const fadeEl = document.getElementById('boxgateFade');
   const hintEl = document.getElementById('boxgateHint');
+  const stickyEl = boxgate ? boxgate.querySelector('.boxgate-sticky') : null;
   const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (boxgate && (location.search.includes('nl') || prefersReducedMotion)) {
     boxgate.remove();
     if (navEl) navEl.classList.remove('is-stowed');
+    if (waFabEl) waFabEl.classList.remove('is-stowed');
   } else if (boxgate && box) {
     const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
     const lerp = (a, b, t) => a + (b - a) * t;
@@ -51,26 +54,50 @@
     }
 
     function applyState(progress) {
-      // Tampa abre 0.15 → 0.75 com easing magnético. Sem zoom, sem fade verde.
-      // O scroll natural revela o hero quando o usuário sai do trilho da boxgate.
+      // Fluxo:
+      //   0.00 → 0.08  : idle (caixa parada, hint visível)
+      //   0.08 → 0.42  : tampa abre com easing magnético
+      //   0.42 → 0.92  : MERGULHO — caixa tomba e CRESCE até o interior lima
+      //                  ENGOLIR a tela. Sem fade lima ajudando — é o próprio
+      //                  interior da caixa que vira fullscreen.
+      //   0.92 → 1.00  : sticky bg some → REVELA a hero atrás (a caixa, já
+      //                  preenchendo a tela inteira de lima, faz o hand-off natural)
       const magnetEase = (t) => {
         const e = smooth(t);
         return e + Math.sin(e * Math.PI) * 0.03 * (1 - e * 0.5);
       };
-      const lidAmount = clamp(magnetEase(phase(progress, 0.15, 0.75)));
+      const lidAmount = clamp(magnetEase(phase(progress, 0.08, 0.42)));
+      const diveT     = smooth(phase(progress, 0.42, 0.92));
+      const revealT   = smooth(phase(progress, 0.92, 1.00));
+
+      // MERGULHO AGRESSIVO — sem isso, a caixa só rotaciona um pouco e cresce
+      // de leve, o que parece "objeto se movendo" e não "câmera entrando".
+      // - rxEx -62 → total rotateX = -90° (topo da caixa de frente pra câmera)
+      // - ryEx 24 → anula yaw base (frontal, sem skew lateral)
+      // - tz 1100 + perspective 1800 = scale via perspectiva ~2.6x base, mas a
+      //   abertura (adiantada em Z após rotação) chega a ~5x — efeito de túnel
+      // - scale 1→3 multiplicado pelo perspective scale = ~15x visual no final.
+      //   O suficiente pra que a cavidade lima preencha completamente a tela.
+      const rxEx  = diveT * -62;
+      const ryEx  = diveT * 24;
+      const tz    = diveT * 1100;
+      const scale = 1 + diveT * 2;
 
       const s = box.style;
       s.setProperty('--lid', lidAmount.toFixed(3));
       s.setProperty('--open', lidAmount.toFixed(3));
-      s.setProperty('--scale', '1');
-      s.setProperty('--tz', '0px');
-      s.setProperty('--rx-extra', '0deg');
-      s.setProperty('--ry-extra', '0deg');
+      s.setProperty('--scale', scale.toFixed(3));
+      s.setProperty('--tz', tz.toFixed(1) + 'px');
+      s.setProperty('--rx-extra', rxEx.toFixed(2) + 'deg');
+      s.setProperty('--ry-extra', ryEx.toFixed(2) + 'deg');
 
-      // sem fade verde — transição direta pro hero quando user sai do trilho
+      // Sem fade lima — a própria caixa em zoom dramático preenche a tela.
       if (fadeEl) fadeEl.style.opacity = '0';
+      // Sticky bg + caixa: fade out pra revelar hero atrás (z-index 4) no fim
+      if (stickyEl) stickyEl.style.setProperty('--reveal', revealT.toFixed(3));
       if (hintEl) hintEl.classList.toggle('is-faded', progress > 0.03);
-      if (navEl)  navEl.classList.toggle('is-stowed', progress < 0.85);
+      if (navEl)  navEl.classList.toggle('is-stowed', progress < 0.95);
+      if (waFabEl) waFabEl.classList.toggle('is-stowed', progress < 0.95);
     }
 
     function tick(now) {
@@ -81,7 +108,7 @@
       appliedProgress += (targetProgress - appliedProgress) * factor;
       applyState(appliedProgress);
       const diff = Math.abs(targetProgress - appliedProgress);
-      isAnimating = diff > 0.0005 || appliedProgress < 0.20;
+      isAnimating = diff > 0.0005;
       if (isAnimating) requestAnimationFrame(tick);
     }
 
@@ -107,6 +134,63 @@
   // ----- ANO no footer -----
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+  // ----- MODAL DE CONTATO (acionado pela etiqueta-FAB) -----
+  // Número da Embalaê — TROCAR pelo número real (formato E.164 sem +)
+  const WHATSAPP_NUMBER = '';
+  const waModal = document.getElementById('waModal');
+  const waFab = document.getElementById('waFab');
+  const waForm = document.getElementById('waForm');
+  let lastFocused = null;
+
+  function openModal() {
+    if (!waModal) return;
+    lastFocused = document.activeElement;
+    waModal.hidden = false;
+    document.body.classList.add('is-modal-open');
+    const firstInput = waModal.querySelector('input, textarea');
+    if (firstInput) setTimeout(() => firstInput.focus(), 50);
+  }
+  function closeModal() {
+    if (!waModal) return;
+    waModal.hidden = true;
+    document.body.classList.remove('is-modal-open');
+    if (lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+
+  if (waFab) {
+    waFab.addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal();
+    });
+  }
+  if (waModal) {
+    waModal.addEventListener('click', (e) => {
+      if (e.target.closest('[data-close-modal]')) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !waModal.hidden) closeModal();
+    });
+  }
+  if (waForm) {
+    waForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!waForm.checkValidity()) {
+        waForm.reportValidity();
+        return;
+      }
+      const data = new FormData(waForm);
+      const nome = (data.get('nome') || '').toString().trim();
+      const email = (data.get('email') || '').toString().trim();
+      const msg = (data.get('mensagem') || '').toString().trim();
+      const text =
+        `Oi, sou ${nome}!\n\n${msg}\n\n— email pra retorno: ${email}`;
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+      closeModal();
+      waForm.reset();
+    });
+  }
 
   // ----- CURSOR CUSTOMIZADO -----
   const cursor = document.getElementById('cursor');

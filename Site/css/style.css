@@ -844,7 +844,7 @@ em { font-style: italic; }
   max-width: var(--max);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 1px;
   background: rgba(245, 239, 216, 0.1);
   border: 1px solid rgba(245, 239, 216, 0.1);
@@ -901,7 +901,7 @@ em { font-style: italic; }
   width: 100%; height: 100%;
 }
 .cta-bg path {
-  fill: var(--yellow);
+  fill: var(--cream);
   animation: ctaBlob 12s ease-in-out infinite;
 }
 @keyframes ctaBlob {
@@ -981,19 +981,24 @@ em { font-style: italic; }
   color: var(--cream);
   overflow: hidden;
 }
-.footer-big {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(80px, 22vw, 360px);
-  line-height: 0.85;
-  letter-spacing: -0.05em;
-  text-align: center;
-  background: linear-gradient(120deg, var(--green-mid), var(--lime), var(--yellow));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.footer-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 60px;
+  padding: 40px 0;
   user-select: none;
+}
+.footer-logo img {
+  width: 100%;
+  max-width: 432px;
+  height: auto;
+  display: block;
+  -webkit-user-drag: none;
+}
+@media (max-width: 768px) {
+  .footer-logo { padding: 20px 0; margin-bottom: 40px; }
+  .footer-logo img { max-width: 288px; }
 }
 .footer-bottom {
   max-width: var(--max);
@@ -1036,19 +1041,19 @@ em { font-style: italic; }
 }
 
 .boxgate {
-  /* Trilho de scroll de 180vh (range de animação = 80vh).
+  /* Trilho de scroll de 280vh — range de animação maior pra acomodar tampa abrindo
+     + mergulho da câmera pra dentro da caixa.
      Background transparente — o hero abaixo, com margin-top negativo, "ocupa"
      o gap visualmente. */
   position: relative;
-  height: 180vh;
+  height: 280vh;
   background: transparent;
   z-index: 5;
 }
 
 /* Hero "sobe" com margin negativo pra cobrir o gap entre o fim da sticky-element
-   e o fim do trilho. Quando o usuário passa do range de animação (80vh), o que
-   ele vê é a sticky-element saindo pra cima E o hero entrando por baixo
-   simultaneamente — sem espaço verde vazio entre eles. */
+   e o fim do trilho. Quando o usuário passa do range de animação, o fade lima
+   já está cobrindo a tela — então o hero aparece "por trás" do fade, sem cortes. */
 .hero {
   margin-top: -100vh;
   position: relative;
@@ -1061,15 +1066,35 @@ em { font-style: italic; }
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  /* Ambiente em camadas pra dar peso/profundidade:
-     - leve halo verde no centro (luz spot do studio)
-     - vinheta escura nos cantos (drama)
-     - gradiente base */
+  /* --reveal vai de 0→1 no fim do trilho: 0 = ambiente do studio + caixa visíveis,
+     1 = ambiente e caixa transparentes pra revelar a hero (z-index 4) atrás. */
+  --reveal: 0;
+  background: transparent;
+}
+
+/* Ambiente do studio em camada própria pra poder fade-out via --reveal sem afetar
+   a caixa (que vive como filho do sticky). A hero atrás (z-index 4) aparece
+   naturalmente quando essa camada some. */
+.boxgate-sticky::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background:
     radial-gradient(50% 50% at 50% 42%, rgba(76, 184, 122, 0.22), transparent 70%),
     radial-gradient(120% 90% at 50% 110%, rgba(8, 38, 25, 0.98), rgba(14, 61, 41, 0.55) 50%, transparent 95%),
     radial-gradient(100% 100% at 50% 50%, transparent 50%, rgba(0, 0, 0, 0.55) 100%),
     linear-gradient(180deg, var(--green-darker) 0%, var(--green-dark) 60%, #143a27 100%);
+  opacity: calc(1 - var(--reveal, 0));
+}
+
+/* Caixa + vinheta esmaecem no fim pra revelar a hero atrás (sem mexer na fade
+   lima, que fica como camada de bridge separada). */
+.boxgate-sticky .boxgate-frame,
+.boxgate-sticky .boxgate-vignette {
+  opacity: calc(1 - var(--reveal, 0));
+  transition: opacity 0.05s linear;
 }
 
 .boxgate-stage {
@@ -1578,16 +1603,6 @@ em { font-style: italic; }
   50%      { transform: translateY(6px); opacity: 1; }
 }
 
-/* Fade verde escuro que disfarça a transição da caixa pro hero embaixo */
-.boxgate-fade {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 5;
-  background: var(--green-dark);
-  opacity: 0;
-}
-
 /* Vinheta de profundidade */
 .boxgate-vignette {
   position: absolute;
@@ -1598,16 +1613,18 @@ em { font-style: italic; }
     radial-gradient(100% 80% at 50% 50%, transparent 50%, rgba(0, 0, 0, 0.45) 100%);
 }
 
-/* Fade pro hero (acionado pelo JS no final). Sutil — só "fecha" a tela em verde
-   pra disfarçar o pulo entre o interior da caixa e o hero real (que tem o mesmo
-   vídeo de fundo). */
+/* Fade que cobre a tela quando a câmera mergulha pra dentro da caixa.
+   Usa a mesma paleta lima do interior pra dar sensação de "estamos DENTRO da
+   caixa" — então o hero embaixo aparece naturalmente quando o fade some. */
 .boxgate-fade {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 5;
-  background: var(--green-dark);
+  z-index: 6;
+  background:
+    radial-gradient(80% 70% at 50% 50%, #d5e147 0%, var(--lime) 55%, #b9cc36 100%);
   opacity: 0;
+  transition: opacity 0.05s linear;
 }
 
 /* Quando a boxgate termina, o conteúdo abaixo pode aparecer naturalmente */
@@ -1620,7 +1637,7 @@ em { font-style: italic; }
     --box-d: 220px;
     --flap-h: 108px;
   }
-  .boxgate { height: 360vh; }
+  .boxgate { height: 320vh; }
   .box-pill { font-size: 11px; }
   .box-wordmark { font-size: 16px; }
   .box-tagline { font-size: 9px; }
@@ -1665,6 +1682,298 @@ em { font-style: italic; }
   .formatos, .manifesto, .processo, .pilares, .cta { padding: 80px var(--pad); }
   .section-head { margin-bottom: 48px; }
   .formato-card { min-height: 320px; }
+  .pilares-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* =========================================================
+   MODAL DE CONTATO (acionado pela etiqueta-FAB)
+   ========================================================= */
+.wa-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.wa-modal[hidden] { display: none; }
+.wa-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 38, 25, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: wa-modal-fade 0.3s var(--ease);
+}
+@keyframes wa-modal-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.wa-modal__sheet {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(201, 219, 63, 0.12), transparent 55%),
+    linear-gradient(180deg, var(--green-dark) 0%, var(--green-darker) 100%);
+  color: var(--cream);
+  border-radius: 24px;
+  padding: 36px 32px 28px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(245, 239, 216, 0.08);
+  animation: wa-modal-pop 0.45s cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+@keyframes wa-modal-pop {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.wa-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  background: rgba(245, 239, 216, 0.08);
+  color: var(--cream);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: none;
+  transition: background 0.25s var(--ease), transform 0.25s var(--ease);
+}
+.wa-modal__close:hover {
+  background: rgba(245, 239, 216, 0.18);
+  transform: rotate(90deg);
+}
+
+.wa-modal__header { text-align: center; margin-bottom: 24px; }
+.wa-modal__logo {
+  width: 130px;
+  height: auto;
+  margin-bottom: 18px;
+  opacity: 0.95;
+}
+.wa-modal__title {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px;
+}
+.wa-modal__title .ital {
+  font-style: italic;
+  color: var(--lime);
+}
+.wa-modal__sub {
+  font-size: 14px;
+  opacity: 0.65;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.wa-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.wa-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.wa-field__label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.wa-field input,
+.wa-field textarea {
+  width: 100%;
+  background: rgba(245, 239, 216, 0.06);
+  border: 1px solid rgba(245, 239, 216, 0.15);
+  color: var(--cream);
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  resize: vertical;
+  transition: border-color 0.25s var(--ease), background 0.25s var(--ease);
+  cursor: none;
+}
+.wa-field textarea { min-height: 80px; line-height: 1.5; }
+.wa-field input::placeholder,
+.wa-field textarea::placeholder {
+  color: rgba(245, 239, 216, 0.35);
+}
+.wa-field input:focus,
+.wa-field textarea:focus {
+  outline: none;
+  border-color: var(--lime);
+  background: rgba(245, 239, 216, 0.1);
+}
+.wa-field input:invalid:not(:placeholder-shown),
+.wa-field textarea:invalid:not(:placeholder-shown) {
+  border-color: rgba(245, 100, 100, 0.55);
+}
+
+.wa-modal__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 14px 20px;
+  background: var(--lime);
+  color: var(--green-dark);
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  cursor: none;
+  transition: transform 0.3s var(--ease), background 0.3s var(--ease), gap 0.3s var(--ease);
+}
+.wa-modal__submit:hover {
+  background: #d4ec57;
+  transform: translateY(-2px);
+}
+.wa-modal__submit svg:last-child { transition: transform 0.3s var(--ease); }
+.wa-modal__submit:hover svg:last-child { transform: translateX(3px); }
+
+.wa-modal__note {
+  font-size: 12px;
+  opacity: 0.5;
+  text-align: center;
+  line-height: 1.5;
+  margin: 4px 0 0;
+}
+
+/* Trava o scroll do body quando o modal está aberto */
+body.is-modal-open { overflow: hidden; }
+
+@media (max-width: 700px) {
+  .wa-modal { padding: 16px; }
+  .wa-modal__sheet { padding: 30px 22px 22px; border-radius: 18px; }
+  .wa-modal__logo { width: 110px; }
+}
+
+/* =========================================================
+   WHATSAPP FLOATING BUTTON — etiqueta tipo tag de produto
+   ========================================================= */
+.wa-fab {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  z-index: 50;
+  text-decoration: none;
+  cursor: none;
+  transform: rotate(-4deg);
+  transition: opacity 0.5s var(--ease), transform 0.45s var(--ease);
+}
+.wa-fab.is-stowed {
+  opacity: 0;
+  pointer-events: none;
+  transform: rotate(-4deg) translateY(20px);
+}
+.wa-fab:hover {
+  transform: rotate(0deg) translateY(-4px);
+}
+
+.wa-tag {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto auto;
+  grid-template-areas:
+    "hole eyebrow"
+    "hole title"
+    "hole cta";
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 6px;
+  width: 220px;
+  padding: 16px 20px 16px 16px;
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(0, 0, 0, 0.05), transparent 50%),
+    linear-gradient(180deg, var(--cream) 0%, #ede5cf 100%);
+  color: var(--green-dark);
+  border-radius: 6px;
+  /* Bordas tracejadas só nas laterais — visual de ticket/etiqueta */
+  box-shadow:
+    inset 0 0 0 1px rgba(14, 61, 41, 0.18),
+    0 18px 30px rgba(0, 0, 0, 0.22),
+    0 4px 8px rgba(0, 0, 0, 0.12);
+  background-image:
+    radial-gradient(120% 80% at 0% 0%, rgba(0, 0, 0, 0.05), transparent 50%),
+    linear-gradient(180deg, var(--cream) 0%, #ede5cf 100%);
+  font-family: var(--font-display);
+}
+
+/* "Furo" da etiqueta (onde passaria o barbante) */
+.wa-tag__hole {
+  grid-area: hole;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--green-dark);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.5),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+  margin-left: 2px;
+}
+
+.wa-tag__eyebrow {
+  grid-area: eyebrow;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.wa-tag__title {
+  grid-area: title;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+
+.wa-tag__cta {
+  grid-area: cta;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 6px 12px;
+  background: var(--lime);
+  color: var(--green-dark);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border-radius: 999px;
+  width: max-content;
+  transition: background 0.3s var(--ease), gap 0.3s var(--ease);
+}
+.wa-tag__cta svg:last-child { transition: transform 0.3s var(--ease); }
+.wa-fab:hover .wa-tag__cta { background: #d4ec57; }
+.wa-fab:hover .wa-tag__cta svg:last-child { transform: translateX(3px); }
+
+@media (max-width: 700px) {
+  .wa-fab { right: 16px; bottom: 16px; }
+  .wa-tag { width: 180px; padding: 14px 16px 14px 14px; column-gap: 10px; }
+  .wa-tag__title { font-size: 18px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

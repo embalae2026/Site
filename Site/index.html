@@ -367,7 +367,7 @@
       <header class="section-head">
         <p class="eyebrow"><span class="dot"></span> processo</p>
         <h2 class="section-title">
-          do guardanapo<br />
+          da ideia no guardanapo<br />
           <span class="ital">até a estante.</span>
         </h2>
       </header>
@@ -375,7 +375,7 @@
       <div class="processo-list">
         <div class="processo-step" data-cursor="hover">
           <span class="step-num">01</span>
-          <h3>conta a ideia</h3>
+          <h3>chama a gente</h3>
           <p>Foto, desenho, áudio do WhatsApp, referência do Pinterest. Vale tudo.</p>
         </div>
         <div class="processo-step" data-cursor="hover">
@@ -468,7 +468,9 @@
 
   <!-- FOOTER -->
   <footer class="footer">
-    <div class="footer-big">embalaê</div>
+    <div class="footer-logo">
+      <img src="assets/logo-trans.png" alt="embalaê" />
+    </div>
     <div class="footer-bottom">
       <div class="footer-tag">embale diferente.</div>
       <div class="footer-meta">
@@ -478,6 +480,68 @@
       </div>
     </div>
   </footer>
+
+  <!-- Modal de contato — abre quando clica na etiqueta -->
+  <div class="wa-modal" id="waModal" role="dialog" aria-modal="true" aria-labelledby="waModalTitle" hidden>
+    <div class="wa-modal__backdrop" data-close-modal></div>
+    <div class="wa-modal__sheet" role="document">
+      <button type="button" class="wa-modal__close" data-close-modal aria-label="Fechar" data-cursor="hover">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+
+      <div class="wa-modal__header">
+        <img src="assets/logo-trans.png" alt="embalaê" class="wa-modal__logo" />
+        <h2 id="waModalTitle" class="wa-modal__title">
+          conta a ideia,<br/>
+          <span class="ital">a gente embala.</span>
+        </h2>
+        <p class="wa-modal__sub">
+          Preenche aí em 10 segundos. A conversa continua direto no WhatsApp.
+        </p>
+      </div>
+
+      <form class="wa-modal__form" id="waForm" novalidate>
+        <label class="wa-field">
+          <span class="wa-field__label">seu nome</span>
+          <input type="text" name="nome" required autocomplete="name" placeholder="ex: maria silva" data-cursor="hover" />
+        </label>
+
+        <label class="wa-field">
+          <span class="wa-field__label">email</span>
+          <input type="email" name="email" required autocomplete="email" placeholder="maria@email.com" data-cursor="hover" />
+        </label>
+
+        <label class="wa-field">
+          <span class="wa-field__label">conta a ideia</span>
+          <textarea name="mensagem" required rows="3" placeholder="quero embalar um produto em formato de..." data-cursor="hover"></textarea>
+        </label>
+
+        <button type="submit" class="wa-modal__submit" data-cursor="hover">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M19.05 4.91A9.82 9.82 0 0 0 12.04 2c-5.45 0-9.89 4.44-9.89 9.89 0 1.74.46 3.44 1.32 4.93L2 22l5.31-1.39a9.87 9.87 0 0 0 4.73 1.21h.01c5.45 0 9.89-4.44 9.89-9.89 0-2.64-1.03-5.13-2.89-6.99v-.03ZM12.05 20.15a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-3.15.83.84-3.07-.2-.32a8.17 8.17 0 0 1-1.26-4.38c0-4.54 3.69-8.23 8.23-8.23 2.2 0 4.27.86 5.83 2.41a8.19 8.19 0 0 1 2.41 5.83c0 4.54-3.69 8.25-8.22 8.25Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.16.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.04-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.71-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.55-1.34-.76-1.83-.2-.48-.41-.42-.56-.43-.14-.01-.31-.01-.48-.01a.92.92 0 0 0-.67.31c-.23.25-.87.85-.87 2.08 0 1.22.89 2.41 1.02 2.58.12.17 1.76 2.68 4.26 3.76.59.26 1.06.41 1.42.52.6.19 1.14.16 1.57.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.14-1.18-.06-.1-.23-.16-.48-.28Z"/></svg>
+          <span>abrir conversa no zap</span>
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </button>
+
+        <p class="wa-modal__note">
+          ⚠ Anexar arquivo? Mande pelo próprio WhatsApp depois — é só clicar no clipinho lá.
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Botão flutuante WhatsApp — etiqueta/tag estilo embalagem -->
+  <a href="https://wa.me/" class="wa-fab is-stowed" id="waFab" aria-label="Chamar no WhatsApp" data-cursor="hover">
+    <div class="wa-tag">
+      <span class="wa-tag__hole" aria-hidden="true"></span>
+      <span class="wa-tag__eyebrow">» embale diferente</span>
+      <span class="wa-tag__title">fale<br/>com a gente</span>
+      <span class="wa-tag__cta">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M19.05 4.91A9.82 9.82 0 0 0 12.04 2c-5.45 0-9.89 4.44-9.89 9.89 0 1.74.46 3.44 1.32 4.93L2 22l5.31-1.39a9.87 9.87 0 0 0 4.73 1.21h.01c5.45 0 9.89-4.44 9.89-9.89 0-2.64-1.03-5.13-2.89-6.99v-.03ZM12.05 20.15a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-3.15.83.84-3.07-.2-.32a8.17 8.17 0 0 1-1.26-4.38c0-4.54 3.69-8.23 8.23-8.23 2.2 0 4.27.86 5.83 2.41a8.19 8.19 0 0 1 2.41 5.83c0 4.54-3.69 8.25-8.22 8.25Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.16.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.12-1.04-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.71-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.43.12-.14.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.55-1.34-.76-1.83-.2-.48-.41-.42-.56-.43-.14-.01-.31-.01-.48-.01a.92.92 0 0 0-.67.31c-.23.25-.87.85-.87 2.08 0 1.22.89 2.41 1.02 2.58.12.17 1.76 2.68 4.26 3.76.59.26 1.06.41 1.42.52.6.19 1.14.16 1.57.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.08.14-1.18-.06-.1-.23-.16-.48-.28Z"/></svg>
+        <span>no zap</span>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </span>
+    </div>
+  </a>
 
   <script src="js/main.js"></script>
 </body>
