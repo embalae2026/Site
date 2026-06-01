@@ -151,8 +151,10 @@
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-  // ----- MODAL DE CONTATO (acionado pela etiqueta-FAB) -----
-  // Número da Embalaê — TROCAR pelo número real (formato E.164 sem +)
+  // ----- CONTATO / WHATSAPP -----
+  // ⚠️ TROCAR pelo número real da Embalaê, formato E.164 SEM "+" e SEM espaços.
+  //    Ex.: (11) 91234-5678  ->  '5511912345678'
+  //    É o ÚNICO lugar pra mexer — modal e links diretos usam essa constante.
   const WHATSAPP_NUMBER = '';
   const waModal = document.getElementById('waModal');
   const waFab = document.getElementById('waFab');
@@ -174,12 +176,15 @@
     if (lastFocused && lastFocused.focus) lastFocused.focus();
   }
 
-  if (waFab) {
-    waFab.addEventListener('click', (e) => {
+  // Todos os CTAs marcados com [data-open-contact] abrem o modal de contato (que
+  // envia a conversa pro WhatsApp): etiqueta flutuante, "orçamento", "tô com uma
+  // ideia" e "ver formatos malucos".
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-open-contact]')) {
       e.preventDefault();
       openModal();
-    });
-  }
+    }
+  });
   if (waModal) {
     waModal.addEventListener('click', (e) => {
       if (e.target.closest('[data-close-modal]')) closeModal();
@@ -207,6 +212,15 @@
       waForm.reset();
     });
   }
+
+  // Links DIRETOS pro WhatsApp ([data-wa-link]) — ex.: "conversar agora" na seção
+  // contato. Monta o href com o número acima + uma mensagem inicial.
+  const waMsg = encodeURIComponent('Oi! Vim pelo site da Embalaê e quero embalar uma ideia.');
+  document.querySelectorAll('[data-wa-link]').forEach((a) => {
+    a.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMsg}`;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+  });
 
   // ----- CURSOR CUSTOMIZADO -----
   const cursor = document.getElementById('cursor');

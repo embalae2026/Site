@@ -28,6 +28,14 @@ Validação: puppeteer-core + Chrome do cache, screenshots em desktop/tablet/mob
 
 Validação extra: rastreio de rede confirmou mp4 NÃO baixado no mobile e baixado no desktop; etiqueta encolheu (~158px vs 228 desktop).
 
+### Todos os CTAs → WhatsApp (via modal)
+
+- Os CTAs `[data-open-contact]` (nav "orçamento", hero "ver formatos malucos" + "tô com uma ideia", etiqueta flutuante) abrem o **modal de contato**, que envia a conversa pro WhatsApp. Handler delegado em [Site/js/main.js](Site/js/main.js).
+- `[data-wa-link]` ("conversar agora" na seção contato) vai **direto** pro `wa.me` com mensagem pronta (href montado no JS).
+- 🔴 **PENDENTE — sem isso o WhatsApp NÃO funciona:** preencher `WHATSAPP_NUMBER` em [Site/js/main.js](Site/js/main.js) (formato E.164 sem "+", ex.: `5511912345678`). É o único lugar — modal e links diretos usam essa constante.
+- Pendências menores: confirmar o **email** (`mailto:contato@embalae.com.br` na seção contato + no `<head>`) e preencher o **@ do Instagram** (hoje `instagram.com/` sem perfil, texto "@embalae").
+- OBS: o botão "ver formatos malucos" agora abre o WhatsApp (não rola mais pros formatos) — texto não condiz com a ação, considerar renomear.
+
 ---
 
 ## O que é a "caixa"
