@@ -32,6 +32,9 @@
 
   if (boxgate && (location.search.includes('nl') || prefersReducedMotion)) {
     boxgate.remove();
+    // sem gate acima, o hero não deve ter o margin-top:-100vh (que existia só pra
+    // sobrepor o trilho) — a classe zera a margem e o hero vira o topo real.
+    document.documentElement.classList.add('is-gate-done');
     if (navEl) navEl.classList.remove('is-stowed');
     if (waFabEl) waFabEl.classList.remove('is-stowed');
   } else if (boxgate && box) {
@@ -45,12 +48,37 @@
     let appliedProgress = 0;
     let isAnimating = true;
     let lastTime = performance.now();
+    let gateDone = false; // vira true quando a caixa termina de abrir (latch)
 
     function readTargetFromScroll() {
-      const rect = boxgate.getBoundingClientRect();
       const total = boxgate.offsetHeight - window.innerHeight;
+      if (total <= 0) return;
+      const rect = boxgate.getBoundingClientRect();
       const scrolled = -rect.top;
       targetProgress = clamp(scrolled / total);
+    }
+
+    // Abertura concluída: remove a boxgate do layout e fixa o hero no topo.
+    // Resolve dois bugs de uma vez:
+    //   - não "fecha" mais ao rolar pra cima (a animação não reverte)
+    //   - os botões do hero voltam a receber clique (a sticky parava de cobrir)
+    function finishGate() {
+      if (gateDone) return;
+      gateDone = true;
+      applyState(1); // garante estado 100% revelado antes de tirar do layout
+      // Remover o gate encurta a página em exatamente `range` (altura do trilho menos
+      // a sticky). Compensar o scroll por esse valor mantém o conteúdo no lugar —
+      // no fluxo normal cai no topo (o hero já preenche a tela), e num refresh já
+      // fundo no site o usuário não é puxado de volta.
+      const range = boxgate.offsetHeight - window.innerHeight;
+      const prevY = window.scrollY;
+      document.documentElement.classList.add('is-gate-done');
+      if (navEl) navEl.classList.remove('is-stowed');
+      if (waFabEl) waFabEl.classList.remove('is-stowed');
+      window.scrollTo(0, Math.max(0, prevY - range));
+      window.removeEventListener('scroll', kick);
+      window.removeEventListener('wheel', kick);
+      window.removeEventListener('touchmove', kick);
     }
 
     function applyState(progress) {
@@ -107,12 +135,15 @@
       const factor = 1 - Math.pow(0.001, dt * 10);
       appliedProgress += (targetProgress - appliedProgress) * factor;
       applyState(appliedProgress);
+      // terminou de abrir → latch (não reverte mais)
+      if (appliedProgress > 0.995) { finishGate(); return; }
       const diff = Math.abs(targetProgress - appliedProgress);
       isAnimating = diff > 0.0005;
       if (isAnimating) requestAnimationFrame(tick);
     }
 
     function kick() {
+      if (gateDone) return;
       readTargetFromScroll();
       if (!isAnimating) {
         isAnimating = true;
@@ -129,6 +160,16 @@
     window.addEventListener('resize', kick, { passive: true });
     window.addEventListener('wheel', kick, { passive: true });
     window.addEventListener('touchmove', kick, { passive: true });
+  }
+
+  // ----- HERO SCROLL HINT: "role pra ver" some quando o site já abriu e o user rola -----
+  const heroScrollEl = document.querySelector('.hero-scroll');
+  if (heroScrollEl) {
+    const updateHeroScroll = () => {
+      heroScrollEl.classList.toggle('is-hidden', window.scrollY > 40);
+    };
+    window.addEventListener('scroll', updateHeroScroll, { passive: true });
+    updateHeroScroll();
   }
 
   // ----- ANO no footer -----

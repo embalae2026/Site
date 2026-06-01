@@ -395,7 +395,10 @@ em { font-style: italic; }
   text-transform: uppercase;
   opacity: 0.6;
   z-index: 2;
+  transition: opacity 0.5s var(--ease);
 }
+/* some assim que o usuário começa a rolar dentro do site (some quando já "abriu") */
+.hero-scroll.is-hidden { opacity: 0; pointer-events: none; }
 .scroll-line {
   width: 1.5px;
   height: 50px;
@@ -554,6 +557,17 @@ em { font-style: italic; }
 .manifesto-text .highlight {
   background: linear-gradient(180deg, transparent 60%, var(--green-mid) 60%);
   padding: 0 6px;
+  /* mantém "ideia maluca" junto, sem quebrar o destaque no meio */
+  white-space: nowrap;
+}
+/* Cada "pensamento" é um bloco que quebra de forma equilibrada, em vez de <br>
+   manuais que brigavam com a quebra natural e deixavam palavras órfãs. */
+.manifesto-text .mline {
+  display: block;
+  text-wrap: balance;
+}
+.manifesto-text .mline + .mline {
+  margin-top: 0.5em;
 }
 .manifesto-side {
   position: relative;
@@ -1041,15 +1055,22 @@ em { font-style: italic; }
 }
 
 .boxgate {
-  /* Trilho de scroll de 280vh — range de animação maior pra acomodar tampa abrindo
-     + mergulho da câmera pra dentro da caixa.
+  /* Trilho de scroll curto — a caixa abre "em um scroll". 160vh = ~60vh de range
+     de animação (sticky ocupa 100vh). Pra mais rápido/lento, mexer só neste valor
+     (e no mobile lá embaixo).
      Background transparente — o hero abaixo, com margin-top negativo, "ocupa"
      o gap visualmente. */
   position: relative;
-  height: 280vh;
+  height: 160vh;
   background: transparent;
   z-index: 5;
 }
+
+/* Quando a abertura termina, a boxgate é removida do layout e o hero vira o topo
+   real do site — assim ela NÃO reverte (fecha) ao rolar pra cima e os cliques
+   voltam a chegar nos botões do hero (a sticky deixa de cobrir tudo). */
+html.is-gate-done .boxgate { display: none; }
+html.is-gate-done .hero { margin-top: 0; }
 
 /* Hero "sobe" com margin negativo pra cobrir o gap entre o fim da sticky-element
    e o fim do trilho. Quando o usuário passa do range de animação, o fade lima
@@ -1566,9 +1587,14 @@ em { font-style: italic; }
   font-family: var(--font-display);
   font-weight: 700;
   font-style: italic;
-  font-size: 44px;
+  font-size: clamp(28px, 5vw, 46px);
   letter-spacing: -0.03em;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
   color: var(--green-dark);
+  /* leve avanço em Z pra "descolar" do fundo lima e ler nítido sob a textura */
+  transform: translateZ(2px);
   /* slogan fica de cabeça pra baixo no estado fechado (porque a face interna tem
      rotateX 180), mas isso não importa: a face só fica visível quando a tampa
      levantou — aí o slogan aparece na direção correta pro observador. */
@@ -1637,7 +1663,7 @@ em { font-style: italic; }
     --box-d: 220px;
     --flap-h: 108px;
   }
-  .boxgate { height: 320vh; }
+  .boxgate { height: 200vh; }
   .box-pill { font-size: 11px; }
   .box-wordmark { font-size: 16px; }
   .box-tagline { font-size: 9px; }
@@ -1682,7 +1708,17 @@ em { font-style: italic; }
   .formatos, .manifesto, .processo, .pilares, .cta { padding: 80px var(--pad); }
   .section-head { margin-bottom: 48px; }
   .formato-card { min-height: 320px; }
+  /* pilares: 2 colunas com fonte/padding menores pra palavras longas
+     (transformação, versatilidade) caberem sem cortar */
   .pilares-grid { grid-template-columns: repeat(2, 1fr); }
+  .pilar { padding: 28px 20px; min-height: 150px; gap: 24px; }
+  .pilar h4 { font-size: clamp(19px, 5.2vw, 26px); overflow-wrap: break-word; hyphens: auto; }
+}
+/* telas bem estreitas: 1 coluna, sem chance de cortar */
+@media (max-width: 460px) {
+  .pilares-grid { grid-template-columns: 1fr; }
+  .pilar { min-height: 0; padding: 24px var(--pad); gap: 16px; }
+  .pilar h4 { font-size: 26px; }
 }
 
 /* =========================================================

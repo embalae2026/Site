@@ -1,6 +1,21 @@
 # Embalaê — guia de continuidade da caixa 3D
 
 > Status em **2026-05-13** após pivô da abordagem.
+> ⚠️ Partes abaixo (timing/tabelas) descrevem a versão antiga. Ver **Atualização 2026-06-01** no fim do arquivo pro comportamento ATUAL.
+
+---
+
+## Atualização 2026-06-01 — 7 correções + boxgate "abre em um scroll"
+
+- **Trilho curto:** `.boxgate` agora **160vh** desktop ([Site/css/style.css](Site/css/style.css), bloco `.boxgate`) / **200vh** mobile. Abre em ~um scroll. Esse é o único valor pra mexer pra deixar mais rápido/lento.
+- **Latch (não fecha mais ao subir):** quando a abertura termina (`appliedProgress > 0.995`), `finishGate()` em [Site/js/main.js](Site/js/main.js) adiciona a classe `is-gate-done` no `<html>`, que faz `.boxgate { display:none }` e `.hero { margin-top:0 }`. Compensa o scroll por `range` (altura do trilho − 100vh) pra não pular. Resultado: a caixa **não reverte** ao rolar pra cima e a sticky **para de cobrir os botões** do hero (antes os botões "ver formatos" / "tô com uma ideia" não clicavam por isso).
+- **Slogan da tampa:** `.lid-inner-slogan` centralizado, `clamp(28px,5vw,46px)`, `white-space:nowrap`, `text-align:center` — cabe nos 420px da tampa sem cortar.
+- **Manifesto:** trocados os `<br>` manuais por blocos `.mline` (display:block + `text-wrap:balance`) — sem palavras órfãs. "ideia maluca" com `white-space:nowrap`.
+- **Pilares mobile:** ≤700px 2 colunas com fonte/padding menores; **≤460px 1 coluna** — palavras longas não cortam mais.
+- **"role pra ver":** `.hero-scroll` ganha `.is-hidden` via JS quando `scrollY > 40` — some ao rolar.
+- Caminho `?nl` / reduced-motion também adiciona `is-gate-done` (hero no topo correto).
+
+Validação: puppeteer-core + Chrome do cache, screenshots em desktop/tablet/mobile + asserts (latch, clique nos botões, fade do hint, refresh profundo). Tudo OK.
 
 ---
 
