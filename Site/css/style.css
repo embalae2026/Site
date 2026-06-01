@@ -29,8 +29,11 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html {
-  /* scroll-behavior: smooth foi removido — quebrava a fluidez do boxgate (scroll-driven anim) */
+  /* scroll-behavior: smooth foi removido — quebrava a fluidez do boxgate */
   background: var(--green-dark);
+  /* reserva a barra de rolagem: evita o "pulo" lateral quando o scroll é
+     destravado no fim da abertura da caixa */
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -1055,20 +1058,27 @@ em { font-style: italic; }
 }
 
 .boxgate {
-  /* Trilho de scroll curto — a caixa abre "em um scroll". 160vh = ~60vh de range
-     de animação (sticky ocupa 100vh). Pra mais rápido/lento, mexer só neste valor
-     (e no mobile lá embaixo).
-     Background transparente — o hero abaixo, com margin-top negativo, "ocupa"
-     o gap visualmente. */
+  /* A abertura é por autoplay (não scroll-driven): a caixa ocupa exatamente 1 tela
+     e o scroll fica travado até ela abrir. Não precisa mais de "trilho" de scroll.
+     Background transparente — o hero, com margin-top negativo, fica logo atrás. */
   position: relative;
-  height: 160vh;
+  height: 100vh;
   background: transparent;
   z-index: 5;
 }
 
+/* Enquanto a caixa não abriu, o scroll fica travado (a abertura é por tempo, não
+   por scroll). Reservar a gutter evita o "pulo" de ~15px quando destrava no fim. */
+html.gate-locked,
+html.gate-locked body {
+  overflow: hidden;
+  height: 100%;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
 /* Quando a abertura termina, a boxgate é removida do layout e o hero vira o topo
-   real do site — assim ela NÃO reverte (fecha) ao rolar pra cima e os cliques
-   voltam a chegar nos botões do hero (a sticky deixa de cobrir tudo). */
+   real do site — assim ela NÃO reverte (fecha) e os cliques chegam nos botões. */
 html.is-gate-done .boxgate { display: none; }
 html.is-gate-done .hero { margin-top: 0; }
 
@@ -1663,10 +1673,33 @@ html.is-gate-done .hero { margin-top: 0; }
     --box-d: 220px;
     --flap-h: 108px;
   }
-  .boxgate { height: 200vh; }
+  .boxgate { height: 100vh; }
   .box-pill { font-size: 11px; }
   .box-wordmark { font-size: 16px; }
   .box-tagline { font-size: 9px; }
+
+  /* PERF MOBILE: o que mais trava a caixa no celular é (1) a textura de papelão
+     com mix-blend-mode (recompõe com o fundo a cada frame) e (2) os box-shadow/
+     filter com blur grande, que reborram a cada frame do scale(3) do mergulho.
+     Removemos o grão e enxugamos os blurs — visual quase idêntico em tela pequena. */
+  .box-face::before,
+  .lid-face::before { display: none; }
+
+  .box-face {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+      inset 0 0 42px rgba(0, 0, 0, 0.42);
+  }
+  .box-interior {
+    box-shadow:
+      inset 0 0 calc(70px * (1 - var(--open, 0))) rgba(0, 0, 0, calc(0.7 * (1 - var(--open, 0)))),
+      inset 0 0 30px rgba(0, 0, 0, 0.22);
+  }
+  .box-wall-inner {
+    box-shadow: inset 0 0 28px rgba(0, 0, 0, calc(0.5 * (1 - var(--open, 0)) + 0.08));
+  }
+  .box-ground-shadow { filter: blur(8px); }
+  .box-ground-shadow::after { display: none; }
 }
 @media (max-width: 480px) {
   .box {

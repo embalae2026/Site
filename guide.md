@@ -7,8 +7,9 @@
 
 ## Atualização 2026-06-01 — 7 correções + boxgate "abre em um scroll"
 
-- **Trilho curto:** `.boxgate` agora **160vh** desktop ([Site/css/style.css](Site/css/style.css), bloco `.boxgate`) / **200vh** mobile. Abre em ~um scroll. Esse é o único valor pra mexer pra deixar mais rápido/lento.
-- **Latch (não fecha mais ao subir):** quando a abertura termina (`appliedProgress > 0.995`), `finishGate()` em [Site/js/main.js](Site/js/main.js) adiciona a classe `is-gate-done` no `<html>`, que faz `.boxgate { display:none }` e `.hero { margin-top:0 }`. Compensa o scroll por `range` (altura do trilho − 100vh) pra não pular. Resultado: a caixa **não reverte** ao rolar pra cima e a sticky **para de cobrir os botões** do hero (antes os botões "ver formatos" / "tô com uma ideia" não clicavam por isso).
+- **Abertura por AUTOPLAY (não é mais scroll-driven):** `.boxgate` ocupa **100vh**, o scroll nasce **travado** (`html.gate-locked` → overflow hidden + touch-action none). O 1º input (wheel / pointerdown / keydown de avançar) chama `startGate()` → animação por **TEMPO** de `DURATION = 1200ms` ([Site/js/main.js](Site/js/main.js)) — esse é o único valor pra acelerar/desacelerar. As fases (lid 0.06→0.40, dive 0.40→0.92, reveal 0.92→1.0) estão em frações do tempo.
+- **One-shot / não fecha:** ao fim, `finishGate()` destrava o scroll, adiciona `is-gate-done` (`.boxgate{display:none}`, `.hero{margin-top:0}`) e `scrollTo(0,0)`. A caixa **não reabre nem fecha** até refresh. Os botões do hero voltam a clicar (a sticky some).
+- **Perf mobile:** em `@media (max-width:900px)` desligamos a textura `mix-blend` (`.box-face::before`/`.lid-face::before { display:none }`) e enxugamos os `box-shadow`/`filter` com blur grande — era o que travava a caixa no celular.
 - **Slogan da tampa:** `.lid-inner-slogan` centralizado, `clamp(28px,5vw,46px)`, `white-space:nowrap`, `text-align:center` — cabe nos 420px da tampa sem cortar.
 - **Manifesto:** trocados os `<br>` manuais por blocos `.mline` (display:block + `text-wrap:balance`) — sem palavras órfãs. "ideia maluca" com `white-space:nowrap`.
 - **Pilares mobile:** ≤700px 2 colunas com fonte/padding menores; **≤460px 1 coluna** — palavras longas não cortam mais.

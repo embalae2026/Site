@@ -39,73 +39,37 @@
     if (waFabEl) waFabEl.classList.remove('is-stowed');
   } else if (boxgate && box) {
     const clamp = (v, lo = 0, hi = 1) => Math.max(lo, Math.min(hi, v));
-    const lerp = (a, b, t) => a + (b - a) * t;
     const smooth = (t) => t * t * (3 - 2 * t); // smoothstep
     const phase = (p, s, e) => clamp((p - s) / (e - s));
 
-    // Smooth progress com lerp temporal — scroll define alvo, applied persegue com inércia
-    let targetProgress = 0;
-    let appliedProgress = 0;
-    let isAnimating = true;
-    let lastTime = performance.now();
-    let gateDone = false; // vira true quando a caixa termina de abrir (latch)
+    // ABERTURA POR AUTOPLAY (não é mais scroll-driven):
+    // a caixa nasce fechada com o scroll TRAVADO. O PRIMEIRO input (rolar, tocar,
+    // clicar ou tecla) dispara UMA animação por TEMPO (~1,2s) que abre a tampa +
+    // mergulha pra dentro e entra no site. Vantagens sobre o scroll-driven antigo:
+    //   - "um scroll único": um gesto só já abre tudo
+    //   - roda SUAVE (depende do tempo, não da cadência do scroll → não trava)
+    //   - one-shot: ao terminar a caixa some e NÃO reabre/fecha até dar refresh
+    const DURATION = 1200; // ms — único ponto pra deixar mais rápido/lento
+    let started = false;
+    let gateDone = false;
+    let startTime = 0;
 
-    function readTargetFromScroll() {
-      const total = boxgate.offsetHeight - window.innerHeight;
-      if (total <= 0) return;
-      const rect = boxgate.getBoundingClientRect();
-      const scrolled = -rect.top;
-      targetProgress = clamp(scrolled / total);
-    }
-
-    // Abertura concluída: remove a boxgate do layout e fixa o hero no topo.
-    // Resolve dois bugs de uma vez:
-    //   - não "fecha" mais ao rolar pra cima (a animação não reverte)
-    //   - os botões do hero voltam a receber clique (a sticky parava de cobrir)
-    function finishGate() {
-      if (gateDone) return;
-      gateDone = true;
-      applyState(1); // garante estado 100% revelado antes de tirar do layout
-      // Remover o gate encurta a página em exatamente `range` (altura do trilho menos
-      // a sticky). Compensar o scroll por esse valor mantém o conteúdo no lugar —
-      // no fluxo normal cai no topo (o hero já preenche a tela), e num refresh já
-      // fundo no site o usuário não é puxado de volta.
-      const range = boxgate.offsetHeight - window.innerHeight;
-      const prevY = window.scrollY;
-      document.documentElement.classList.add('is-gate-done');
-      if (navEl) navEl.classList.remove('is-stowed');
-      if (waFabEl) waFabEl.classList.remove('is-stowed');
-      window.scrollTo(0, Math.max(0, prevY - range));
-      window.removeEventListener('scroll', kick);
-      window.removeEventListener('wheel', kick);
-      window.removeEventListener('touchmove', kick);
-    }
+    document.documentElement.classList.add('gate-locked'); // trava o scroll na entrada
 
     function applyState(progress) {
-      // Fluxo:
-      //   0.00 → 0.08  : idle (caixa parada, hint visível)
-      //   0.08 → 0.42  : tampa abre com easing magnético
-      //   0.42 → 0.92  : MERGULHO — caixa tomba e CRESCE até o interior lima
-      //                  ENGOLIR a tela. Sem fade lima ajudando — é o próprio
-      //                  interior da caixa que vira fullscreen.
-      //   0.92 → 1.00  : sticky bg some → REVELA a hero atrás (a caixa, já
-      //                  preenchendo a tela inteira de lima, faz o hand-off natural)
+      // Fases (em fração do tempo):
+      //   0.00 → 0.06  : idle
+      //   0.06 → 0.40  : tampa abre com easing magnético
+      //   0.40 → 0.92  : MERGULHO — caixa tomba e CRESCE até o interior engolir a tela
+      //   0.92 → 1.00  : revela a hero atrás (hand-off natural)
       const magnetEase = (t) => {
         const e = smooth(t);
         return e + Math.sin(e * Math.PI) * 0.03 * (1 - e * 0.5);
       };
-      const lidAmount = clamp(magnetEase(phase(progress, 0.08, 0.42)));
-      const diveT     = smooth(phase(progress, 0.42, 0.92));
+      const lidAmount = clamp(magnetEase(phase(progress, 0.06, 0.40)));
+      const diveT     = smooth(phase(progress, 0.40, 0.92));
       const revealT   = smooth(phase(progress, 0.92, 1.00));
 
-      // MERGULHO AGRESSIVO — sem isso, a caixa só rotaciona um pouco e cresce
-      // de leve, o que parece "objeto se movendo" e não "câmera entrando".
-      // - rxEx -62 → total rotateX = -90° (topo da caixa de frente pra câmera)
-      // - ryEx 24 → anula yaw base (frontal, sem skew lateral)
-      // - tz 1100 + perspective 1800 = scale via perspectiva ~2.6x base, mas a
-      //   abertura (adiantada em Z após rotação) chega a ~5x — efeito de túnel
-      // - scale 1→3 multiplicado pelo perspective scale = ~15x visual no final.
-      //   O suficiente pra que a cavidade lima preencha completamente a tela.
       const rxEx  = diveT * -62;
       const ryEx  = diveT * 24;
       const tz    = diveT * 1100;
@@ -119,47 +83,58 @@
       s.setProperty('--rx-extra', rxEx.toFixed(2) + 'deg');
       s.setProperty('--ry-extra', ryEx.toFixed(2) + 'deg');
 
-      // Sem fade lima — a própria caixa em zoom dramático preenche a tela.
       if (fadeEl) fadeEl.style.opacity = '0';
-      // Sticky bg + caixa: fade out pra revelar hero atrás (z-index 4) no fim
       if (stickyEl) stickyEl.style.setProperty('--reveal', revealT.toFixed(3));
-      if (hintEl) hintEl.classList.toggle('is-faded', progress > 0.03);
-      if (navEl)  navEl.classList.toggle('is-stowed', progress < 0.95);
-      if (waFabEl) waFabEl.classList.toggle('is-stowed', progress < 0.95);
+      if (hintEl) hintEl.classList.toggle('is-faded', progress > 0.02);
+      if (navEl)  navEl.classList.toggle('is-stowed', progress < 0.92);
+      if (waFabEl) waFabEl.classList.toggle('is-stowed', progress < 0.92);
     }
 
-    function tick(now) {
-      const dt = Math.min(0.05, (now - lastTime) / 1000);
-      lastTime = now;
-      // Lerp temporal: catch-up ~100ms. Suaviza flicks bruscos de trackpad.
-      const factor = 1 - Math.pow(0.001, dt * 10);
-      appliedProgress += (targetProgress - appliedProgress) * factor;
-      applyState(appliedProgress);
-      // terminou de abrir → latch (não reverte mais)
-      if (appliedProgress > 0.995) { finishGate(); return; }
-      const diff = Math.abs(targetProgress - appliedProgress);
-      isAnimating = diff > 0.0005;
-      if (isAnimating) requestAnimationFrame(tick);
-    }
-
-    function kick() {
+    // Fim da abertura: destrava o scroll, remove a boxgate do layout (display:none
+    // via is-gate-done) e leva o hero pro topo. One-shot — não há como reverter.
+    function finishGate() {
       if (gateDone) return;
-      readTargetFromScroll();
-      if (!isAnimating) {
-        isAnimating = true;
-        lastTime = performance.now();
-        requestAnimationFrame(tick);
-      }
+      gateDone = true;
+      applyState(1);
+      document.documentElement.classList.remove('gate-locked');
+      document.documentElement.classList.add('is-gate-done');
+      if (navEl) navEl.classList.remove('is-stowed');
+      if (waFabEl) waFabEl.classList.remove('is-stowed');
+      window.scrollTo(0, 0);
+      removeStartListeners();
     }
 
-    readTargetFromScroll();
-    appliedProgress = targetProgress;
-    requestAnimationFrame(tick);
+    function frame(now) {
+      if (!startTime) startTime = now;
+      const t = clamp((now - startTime) / DURATION);
+      applyState(t);
+      if (t >= 1) { finishGate(); return; }
+      requestAnimationFrame(frame);
+    }
 
-    window.addEventListener('scroll', kick, { passive: true });
-    window.addEventListener('resize', kick, { passive: true });
-    window.addEventListener('wheel', kick, { passive: true });
-    window.addEventListener('touchmove', kick, { passive: true });
+    function startGate() {
+      if (started || gateDone) return;
+      started = true;
+      startTime = 0;
+      requestAnimationFrame(frame);
+      removeStartListeners();
+    }
+
+    // Dispara no 1º input: roda do mouse, toque/clique (pointerdown) ou tecla de avançar.
+    const startEvents = ['wheel', 'pointerdown', 'keydown'];
+    function onInput(e) {
+      if (e.type === 'keydown') {
+        const ok = [' ', 'Spacebar', 'Enter', 'ArrowDown', 'PageDown'];
+        if (!ok.includes(e.key)) return;
+      }
+      startGate();
+    }
+    function removeStartListeners() {
+      startEvents.forEach((ev) => window.removeEventListener(ev, onInput));
+    }
+    startEvents.forEach((ev) => window.addEventListener(ev, onInput, { passive: true }));
+
+    applyState(0); // estado inicial: caixa fechada
   }
 
   // ----- HERO SCROLL HINT: "role pra ver" some quando o site já abriu e o user rola -----
