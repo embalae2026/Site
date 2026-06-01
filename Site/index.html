@@ -121,7 +121,10 @@
     <!-- HERO -->
     <section class="hero">
       <div class="hero-bg">
-        <video autoplay muted loop playsinline preload="auto" class="hero-video" id="heroVideo" poster="">
+        <!-- poster leve (14KB) aparece na hora; o vídeo (3.4MB) só carrega/toca no
+             desktop — no mobile fica só o poster pra economizar dados e bateria.
+             Controle do play está no main.js (preload=none + sem autoplay). -->
+        <video muted loop playsinline preload="none" class="hero-video" id="heroVideo" poster="assets/hero-poster.jpg">
           <source src="assets/embalae-loop.mp4" type="video/mp4" />
         </video>
         <div class="hero-bg-overlay"></div>

@@ -1746,6 +1746,10 @@ html.is-gate-done .hero { margin-top: 0; }
   .pilares-grid { grid-template-columns: repeat(2, 1fr); }
   .pilar { padding: 28px 20px; min-height: 150px; gap: 24px; }
   .pilar h4 { font-size: clamp(19px, 5.2vw, 26px); overflow-wrap: break-word; hyphens: auto; }
+  /* PERF: 3 blobs com blur(80px) pesam no paint mobile. Reduz o blur e mantém
+     só o maior — o efeito de "aura" continua, bem mais barato. */
+  .blob { filter: blur(48px); }
+  .blob-2, .blob-3 { display: none; }
 }
 /* telas bem estreitas: 1 coluna, sem chance de cortar */
 @media (max-width: 460px) {
@@ -2040,9 +2044,22 @@ body.is-modal-open { overflow: hidden; }
 .wa-fab:hover .wa-tag__cta svg:last-child { transform: translateX(3px); }
 
 @media (max-width: 700px) {
-  .wa-fab { right: 16px; bottom: 16px; }
-  .wa-tag { width: 180px; padding: 14px 16px 14px 14px; column-gap: 10px; }
-  .wa-tag__title { font-size: 18px; }
+  /* No mobile a etiqueta cheia cobria conteúdo no canto. Colapsa pra versão
+     compacta: só o furo + o pill "no zap" (toque abre o mesmo modal de contato).
+     Mantém a identidade de etiqueta ocupando bem menos tela. */
+  .wa-fab { right: 14px; bottom: 14px; }
+  .wa-tag {
+    width: auto;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto;
+    grid-template-areas: "hole cta";
+    padding: 10px 12px;
+    column-gap: 10px;
+    row-gap: 0;
+  }
+  .wa-tag__eyebrow,
+  .wa-tag__title { display: none; }
+  .wa-tag__cta { margin-top: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

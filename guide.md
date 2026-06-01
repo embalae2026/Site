@@ -18,6 +18,16 @@
 
 Validação: puppeteer-core + Chrome do cache, screenshots em desktop/tablet/mobile + asserts (latch, clique nos botões, fade do hint, refresh profundo). Tudo OK.
 
+### Otimização mobile (carregamento + toque)
+
+- **Vídeo do hero (era 3.4MB):** agora `preload="none"` + `poster="assets/hero-poster.jpg"` (14KB, frame extraído com ffmpeg). No **desktop** o `main.js` dá `load()`+`play()`; no **mobile/touch** NÃO baixa o vídeo — fica só o poster. Economia de ~3.4MB no celular.
+- **Etiqueta WhatsApp (wa-fab):** no mobile (`@media ≤700px`) colapsa pra versão compacta (esconde eyebrow+título, mantém furo + pill "no zap") — parava de cobrir conteúdo. Toque abre o mesmo modal.
+- **Blobs do hero:** no mobile `blur(80px)→48px` e `.blob-2/.blob-3 { display:none }` (paint mais barato).
+- Cursor custom / tilt / parallax já eram desativados no touch (`isTouch`).
+- **PENDENTE (a confirmar com Bruno):** nav mobile só tem logo + "orçamento" (`.nav-links{display:none}` ≤900px). Sem menu de seções. Se quiser, dá pra adicionar um menu hamburguer (é feature nova).
+
+Validação extra: rastreio de rede confirmou mp4 NÃO baixado no mobile e baixado no desktop; etiqueta encolheu (~158px vs 228 desktop).
+
 ---
 
 ## O que é a "caixa"

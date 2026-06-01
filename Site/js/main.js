@@ -291,22 +291,21 @@
     });
   }
 
-  // ----- VÍDEO HERO: força autoplay -----
+  // ----- VÍDEO HERO -----
+  // No DESKTOP: carrega sob demanda (preload=none no HTML) e toca o loop de fundo.
+  // No MOBILE/touch: NÃO baixa o vídeo (3.4MB) — fica só o poster (14KB), economizando
+  // dados e bateria. O fundo do hero continua tendo a arte, só que estática.
   const heroVideo = document.getElementById('heroVideo');
-  if (heroVideo) {
-    // tenta dar play assim que possível
+  if (heroVideo && !isTouch) {
     const tryPlay = () => heroVideo.play().catch(err => {
       console.warn('[video] autoplay bloqueado:', err);
     });
-    if (heroVideo.readyState >= 2) {
-      tryPlay();
-    } else {
-      heroVideo.addEventListener('loadeddata', tryPlay, { once: true });
-      heroVideo.addEventListener('canplay', tryPlay, { once: true });
-    }
-    // play em interação (caso o navegador exija)
+    heroVideo.preload = 'auto';
+    heroVideo.load();
+    if (heroVideo.readyState >= 2) tryPlay();
+    heroVideo.addEventListener('loadeddata', tryPlay, { once: true });
+    heroVideo.addEventListener('canplay', tryPlay, { once: true });
     document.addEventListener('click', tryPlay, { once: true });
-    document.addEventListener('scroll', tryPlay, { once: true, passive: true });
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) tryPlay();
     });
