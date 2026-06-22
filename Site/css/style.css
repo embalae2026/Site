@@ -1234,6 +1234,14 @@ html.is-gate-done .hero { margin-top: 0; }
   will-change: transform;
 }
 
+/* Mobile: a caixa fica menos achatada — altura maior deixa a proporção mais
+   próxima de um cubo (no desktop ela é baixa/larga, estilo packaging shot).
+   Só --box-h muda; todas as faces referenciam a variável, então o 3D segue
+   alinhado e a arte (background cover) só re-enquadra, sem distorcer. */
+@media (max-width: 700px) {
+  .box { --box-h: 280px; }
+}
+
 /* Faces externas — base shared.
    Box-shadow em camadas: highlight de borda + bevel duplo (claro de fora,
    escuro de dentro) + ambient occlusion intenso nos cantos. */
