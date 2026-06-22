@@ -1721,9 +1721,10 @@ html.is-gate-done .hero { margin-top: 0; }
 /* — Mobile: reduz tamanho da caixa e suaviza a stage — */
 @media (max-width: 900px) {
   .box {
-    --box-w: 320px;
-    --box-h: 220px;
-    --box-d: 220px;
+    /* MESMA proporção do desktop (420x200x320), só escalada (k≈0.80) */
+    --box-w: 336px;
+    --box-h: 160px;
+    --box-d: 256px;
     --flap-h: 108px;
   }
   .boxgate { height: 100vh; }
@@ -1756,11 +1757,12 @@ html.is-gate-done .hero { margin-top: 0; }
 }
 @media (max-width: 480px) {
   .box {
-    /* proporção mais cúbica (era 240x170x170, ficava achatada/deitada no celular) */
-    --box-w: 250px;
-    --box-h: 225px;
-    --box-d: 205px;
-    --flap-h: 110px;
+    /* MESMA proporção do desktop (420x200x320), só escalada (k≈0.65) — antes o
+       mobile tinha proporção própria diferente, que deixava a caixa "alta e curta". */
+    --box-w: 273px;
+    --box-h: 130px;
+    --box-d: 208px;
+    --flap-h: 85px;
   }
 }
 
