@@ -185,6 +185,27 @@
       openModal();
     }
   });
+
+  // Scroll suave nos links âncora (menu + internos). Não usamos scroll-behavior:smooth
+  // global porque quebra a fluidez do boxgate — então animamos só no clique. Aplica um
+  // offset = altura do nav fixo pra a seção não ficar escondida atrás dele.
+  const navForOffset = document.getElementById('nav');
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('a[href^="#"]:not([data-open-contact])').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const hash = link.getAttribute('href');
+      if (!hash || hash === '#') return;
+      const target = document.querySelector(hash);
+      if (!target) return;
+      e.preventDefault();
+      const offset = (navForOffset ? navForOffset.offsetHeight : 80) + 12;
+      const top = hash === '#topo'
+        ? 0
+        : Math.max(0, target.getBoundingClientRect().top + window.scrollY - offset);
+      window.scrollTo({ top, behavior: prefersReduced ? 'auto' : 'smooth' });
+      history.pushState(null, '', hash);
+    });
+  });
   if (waModal) {
     waModal.addEventListener('click', (e) => {
       if (e.target.closest('[data-close-modal]')) closeModal();
@@ -290,6 +311,26 @@
       el.classList.add('reveal');
       io.observe(el);
     });
+  }
+
+  // ----- ESCONDER O FAB perto do fim da página -----
+  // Quando a área de contato ou o rodapé entram na tela, o card flutuante some
+  // (pra não sobrepor as infos). Ao subir, ele reaparece. Estado por interseção.
+  const fabEnd = document.getElementById('waFab');
+  const endZones = [
+    document.getElementById('contato'),
+    document.querySelector('.footer'),
+  ].filter(Boolean);
+  if (fabEnd && endZones.length && 'IntersectionObserver' in window) {
+    const visibleEnd = new Set();
+    const fabIO = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) visibleEnd.add(entry.target);
+        else visibleEnd.delete(entry.target);
+      });
+      fabEnd.classList.toggle('is-hidden-end', visibleEnd.size > 0);
+    }, { threshold: 0, rootMargin: '0px 0px -12% 0px' });
+    endZones.forEach(el => fabIO.observe(el));
   }
 
   // ----- PARALLAX SUTIL nos blobs do hero -----

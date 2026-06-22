@@ -316,26 +316,42 @@ em { font-style: italic; }
   position: relative;
 }
 .rotator {
-  display: flex;
-  flex-direction: column;
+  display: block;
+  position: relative;
+  height: 1em;
   color: var(--lime);
   font-style: italic;
-  animation: rotate-words 14s steps(7, end) infinite;
 }
 .rotator > span {
+  position: absolute;
+  inset: 0;
   display: block;
-  height: 1em;
   line-height: 1em;
   white-space: nowrap;
+  opacity: 0;
+  transform-origin: left center;
+  transform: translateY(0.45em) scale(0.9);
+  filter: blur(6px);
+  will-change: opacity, transform, filter;
+  animation: word-cycle 22s cubic-bezier(0.16, 0.84, 0.34, 1) infinite;
 }
-@keyframes rotate-words {
-  0%, 12%   { transform: translateY(0); }
-  14%, 26%  { transform: translateY(-1em); }
-  28%, 40%  { transform: translateY(-2em); }
-  42%, 54%  { transform: translateY(-3em); }
-  56%, 68%  { transform: translateY(-4em); }
-  70%, 82%  { transform: translateY(-5em); }
-  84%, 100% { transform: translateY(-6em); }
+.rotator > span:nth-child(1)  { animation-delay: 0s; }
+.rotator > span:nth-child(2)  { animation-delay: 2s; }
+.rotator > span:nth-child(3)  { animation-delay: 4s; }
+.rotator > span:nth-child(4)  { animation-delay: 6s; }
+.rotator > span:nth-child(5)  { animation-delay: 8s; }
+.rotator > span:nth-child(6)  { animation-delay: 10s; }
+.rotator > span:nth-child(7)  { animation-delay: 12s; }
+.rotator > span:nth-child(8)  { animation-delay: 14s; }
+.rotator > span:nth-child(9)  { animation-delay: 16s; }
+.rotator > span:nth-child(10) { animation-delay: 18s; }
+.rotator > span:nth-child(11) { animation-delay: 20s; }
+@keyframes word-cycle {
+  0%    { opacity: 0; transform: translateY(0.45em) scale(0.9);  filter: blur(6px); }
+  1.6%  { opacity: 1; transform: translateY(0)      scale(1);    filter: blur(0); }
+  7.8%  { opacity: 1; transform: translateY(0)      scale(1);    filter: blur(0); }
+  9%    { opacity: 0; transform: translateY(-0.4em) scale(0.94); filter: blur(6px); }
+  100%  { opacity: 0; transform: translateY(-0.4em) scale(0.94); filter: blur(6px); }
 }
 
 .hero-sub {
@@ -343,7 +359,7 @@ em { font-style: italic; }
   font-size: clamp(16px, 1.5vw, 19px);
   color: var(--cream);
   opacity: 0.82;
-  margin-bottom: 44px;
+  margin-bottom: 0;
   line-height: 1.55;
 }
 
@@ -767,8 +783,8 @@ em { font-style: italic; }
 .big-stack {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(70px, 17vw, 280px);
-  line-height: 0.85;
+  font-size: clamp(38px, 12vw, 168px);
+  line-height: 0.9;
   letter-spacing: -0.05em;
   color: var(--cream);
   margin-bottom: 40px;
@@ -785,10 +801,11 @@ em { font-style: italic; }
   font-weight: 600;
 }
 .big-meta {
-  max-width: 480px;
+  max-width: 640px;
   margin: 0 auto;
   opacity: 0.75;
   font-size: 16px;
+  text-wrap: balance;
 }
 
 /* =========================================================
@@ -1041,6 +1058,26 @@ em { font-style: italic; }
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+.footer-credit {
+  max-width: var(--max);
+  margin: 28px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--cream);
+  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity 0.3s var(--ease);
+}
+.footer-credit:hover { opacity: 1; }
+.footer-credit img {
+  height: 24px;
+  width: auto;
+  display: block;
 }
 
 /* =========================================================
@@ -1959,6 +1996,11 @@ body.is-modal-open { overflow: hidden; }
   pointer-events: none;
   transform: rotate(-4deg) translateY(20px);
 }
+.wa-fab.is-hidden-end {
+  opacity: 0;
+  pointer-events: none;
+  transform: rotate(-4deg) translateY(24px);
+}
 .wa-fab:hover {
   transform: rotate(0deg) translateY(-4px);
 }
@@ -2061,6 +2103,10 @@ body.is-modal-open { overflow: hidden; }
   .wa-tag__title { display: none; }
   .wa-tag__cta { margin-top: 0; }
 }
+
+/* =========================================================
+   ADIÇÕES DO BRIEFING (ajustes site)
+   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
