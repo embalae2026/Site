@@ -519,6 +519,11 @@ em { font-style: italic; }
   from { transform: translateX(-50%); }
   to   { transform: translateX(0); }
 }
+/* Mobile: faixa mais baixa e fonte menor (no desktop fica grande) */
+@media (max-width: 700px) {
+  .marquee { padding: 14px 0; }
+  .marquee-track { font-size: 20px; gap: 18px; }
+}
 
 /* =========================================================
    MANIFESTO
@@ -1080,6 +1085,15 @@ em { font-style: italic; }
   height: 24px;
   width: auto;
   display: block;
+}
+/* Mobile: centraliza as infos do rodapé (no desktop ficam nas extremidades) */
+@media (max-width: 700px) {
+  .footer-bottom {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+  .footer-meta { justify-content: center; }
 }
 
 /* =========================================================
