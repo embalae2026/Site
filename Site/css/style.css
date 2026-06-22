@@ -576,8 +576,10 @@ em { font-style: italic; }
 .manifesto-text .highlight {
   background: linear-gradient(180deg, transparent 60%, var(--green-mid) 60%);
   padding: 0 6px;
-  /* mantém "ideia maluca" junto, sem quebrar o destaque no meio */
-  white-space: nowrap;
+  /* pode quebrar em telas estreitas; box-decoration-break mantém o grifo certo
+     em cada linha quando "cores, impressão e formatos" passa pra duas linhas. */
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 /* Cada "pensamento" é um bloco que quebra de forma equilibrada, em vez de <br>
    manuais que brigavam com a quebra natural e deixavam palavras órfãs. */
