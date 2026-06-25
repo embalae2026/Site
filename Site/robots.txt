@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /variants/
+
+Sitemap: https://embalae.ind.br/sitemap.xml
