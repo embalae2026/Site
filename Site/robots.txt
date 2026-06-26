@@ -1,4 +1,43 @@
+# robots.txt — Embalaê (embalae.ind.br)
+
+# Buscadores e crawlers em geral
 User-agent: *
+Allow: /
+Disallow: /variants/
+
+# Crawlers de IA — permitidos (queremos a Embalaê presente nas IAs)
+User-agent: GPTBot
+Allow: /
+Disallow: /variants/
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /variants/
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /variants/
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /variants/
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
 Allow: /
 Disallow: /variants/
 
