@@ -2,6 +2,47 @@
    EMBALAÊ — embale diferente
    ========================================================= */
 
+/* =========================================================
+   FONTES (self-hosted — woff2 variável, peso 400..800)
+   Hospedadas localmente p/ eliminar render-blocking e a
+   conexão a fonts.googleapis.com / gstatic. latin-ext só
+   é baixado quando a página tiver glifos dessa faixa.
+   ========================================================= */
+/* Bricolage Grotesque — display */
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(../assets/fonts/bricolage-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(../assets/fonts/bricolage-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* Manrope — body */
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(../assets/fonts/manrope-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  src: url(../assets/fonts/manrope-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
 :root {
   --green-dark: #0e3d29;
   --green-darker: #082619;
@@ -1303,7 +1344,7 @@ html.is-gate-done .hero { margin-top: 0; }
   background:
     /* iluminação direcional: claro no canto superior esquerdo, sombra no inferior direito */
     linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, transparent 35%, rgba(0, 0, 0, 0.25) 100%),
-    url(../assets/face-frente.jpg) center / cover no-repeat,
+    url(../assets/face-frente.webp) center / cover no-repeat,
     var(--green-darker);
 }
 
@@ -1312,7 +1353,7 @@ html.is-gate-done .hero { margin-top: 0; }
   width: var(--box-w);
   height: var(--box-h);
   transform: translate(-50%, -50%) translateZ(calc(var(--box-d) / -2)) rotateY(180deg);
-  background: url(../assets/face-frente.jpg) center / cover no-repeat, var(--green-darker);
+  background: url(../assets/face-frente.webp) center / cover no-repeat, var(--green-darker);
 }
 
 /* — Laterais: artwork + overlays distintos pra cada lado (luz de cima-esquerda).
@@ -1326,7 +1367,7 @@ html.is-gate-done .hero { margin-top: 0; }
   background:
     /* lateral direita = lado escuro (longe da luz). Gradient bem mais escuro */
     linear-gradient(90deg, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.18) 60%, rgba(0, 0, 0, 0.05) 100%),
-    url(../assets/face-lateral.jpg) center / cover no-repeat,
+    url(../assets/face-lateral.webp) center / cover no-repeat,
     var(--green-darker);
   transform: translate(-50%, -50%) translateX(calc(var(--box-w) / 2)) rotateY(90deg);
 }
@@ -1334,7 +1375,7 @@ html.is-gate-done .hero { margin-top: 0; }
   background:
     /* lateral esquerda = lado iluminado, leve highlight */
     linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0%, transparent 40%, rgba(0, 0, 0, 0.15) 100%),
-    url(../assets/face-lateral.jpg) center / cover no-repeat,
+    url(../assets/face-lateral.webp) center / cover no-repeat,
     var(--green-darker);
   transform: translate(-50%, -50%) translateX(calc(var(--box-w) / -2)) rotateY(-90deg);
 }
@@ -1611,14 +1652,14 @@ html.is-gate-done .hero { margin-top: 0; }
   z-index: 1;
 }
 
-/* Face EXTERNA da tampa: usa artwork pronto face-tampa.jpg como background.
+/* Face EXTERNA da tampa: usa artwork pronto face-tampa.webp como background.
    backface-visibility: hidden agora FUNCIONA porque a .lid-plane não tem mais filter
    quebrando o preserve-3d. Quando a tampa passa da vertical, a normal aponta pra
    trás e a face fica oculta — não aparece com aé invertido. */
 .lid-face--outer {
   background:
     linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, transparent 10px),
-    url(../assets/face-tampa.jpg) center / cover no-repeat,
+    url(../assets/face-tampa.webp) center / cover no-repeat,
     var(--green-darker);
   box-shadow:
     inset 0 0 80px rgba(0, 0, 0, 0.25),

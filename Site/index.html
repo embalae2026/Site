@@ -75,10 +75,10 @@
   }
   </script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Manrope:wght@300;400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Manrope:wght@300;400;500;600;700;800&display=swap" /></noscript>
+  <!-- Fontes self-hosted (woff2 variável local) — @font-face em css/style.css.
+       Preload só do subset latin (crítico p/ LCP); latin-ext carrega sob demanda. -->
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/bricolage-latin.woff2" crossorigin />
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/manrope-latin.woff2" crossorigin />
 
   <link rel="stylesheet" href="css/style.css" />
 
@@ -91,23 +91,8 @@
     gtag('config', 'G-G036EXZS32');
   </script>
 
-  <!-- ===== Meta (Facebook) Pixel =====
-       TODO: trocar SEU_PIXEL_ID pelo ID numérico do Pixel (aparece no script e no <noscript>) -->
-  <script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', 'SEU_PIXEL_ID');
-    fbq('track', 'PageView');
-  </script>
-  <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=SEU_PIXEL_ID&ev=PageView&noscript=1" /></noscript>
-  <!-- ===== Fim Meta Pixel ===== -->
+  <!-- Meta (Facebook) Pixel removido por ora (estava sem ID configurado).
+       Para reativar: colar o snippet do Events Manager com o ID real do Pixel. -->
 </head>
 <body>
 
@@ -126,7 +111,7 @@
   <!-- NAVIGATION -->
   <nav class="nav is-stowed" id="nav">
     <a href="#topo" class="nav-logo" aria-label="embalaê — início">
-      <img src="assets/logo-trans.png" alt="embalaê" />
+      <img src="assets/logo-trans.png" alt="embalaê" width="1074" height="224" />
     </a>
     <ul class="nav-links">
       <li><a href="#manifesto" data-cursor="hover">manifesto</a></li>
@@ -555,7 +540,7 @@
   <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-logo">
-      <img src="assets/logo-trans.png" alt="embalaê" />
+      <img src="assets/logo-trans.png" alt="embalaê" width="1074" height="224" />
     </div>
     <div class="footer-bottom">
       <div class="footer-tag">embale diferente.</div>
@@ -568,7 +553,7 @@
 
     <a class="footer-credit" href="https://agenciadestra.com.br/" target="_blank" rel="noopener" data-cursor="hover" aria-label="Site desenvolvido pela Destra — agenciadestra.com.br">
       <span>destravado por</span>
-      <img src="assets/destra-logo.png" alt="Destra — livres para criar" />
+      <img src="assets/destra-logo.png" alt="Destra — livres para criar" width="603" height="160" />
     </a>
   </footer>
 
@@ -581,7 +566,7 @@
       </button>
 
       <div class="wa-modal__header">
-        <img src="assets/logo-trans.png" alt="embalaê" class="wa-modal__logo" />
+        <img src="assets/logo-trans.png" alt="embalaê" class="wa-modal__logo" width="1074" height="224" />
         <h2 id="waModalTitle" class="wa-modal__title">
           conta a ideia,<br/>
           <span class="ital">a gente embala.</span>
