@@ -155,7 +155,7 @@
   // ⚠️ TROCAR pelo número real da Embalaê, formato E.164 SEM "+" e SEM espaços.
   //    Ex.: (11) 91234-5678  ->  '5511912345678'
   //    É o ÚNICO lugar pra mexer — modal e links diretos usam essa constante.
-  const WHATSAPP_NUMBER = '';
+  const WHATSAPP_NUMBER = '5551995024765';
   const waModal = document.getElementById('waModal');
   const waFab = document.getElementById('waFab');
   const waForm = document.getElementById('waForm');
